@@ -8,7 +8,7 @@ local TeleportService = game:GetService("TeleportService")
 local TweenService = game:GetService("TweenService")
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "DYHUB | Auto Bond | Menu"
+gui.Name = "RTaO Dev | Auto Bond | Menu"
 gui.Parent = playerGui
 
 local mainFrame = Instance.new("Frame")
@@ -35,7 +35,7 @@ end
 
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 0, 40)
-title.Text = "Dead Rails V2 | DYHUB"
+title.Text = "Dead Rails V2 | RTaO"
 title.Font = Enum.Font.GothamBold
 title.TextScaled = true
 title.BackgroundTransparency = 1
@@ -145,7 +145,7 @@ if not game.CoreGui:FindFirstChild("BondFarm") then
     title2.Position = UDim2.new(0.5, 0, 0.1, 0)
     title2.AnchorPoint = Vector2.new(0.5, 0)
     title2.BackgroundTransparency = 1
-    title2.Text = "Auto-Farm Bond | DYHUB"
+    title2.Text = "Auto-Farm Bond | RTaO"
     title2.TextColor3 = Color3.new(1, 1, 1)
     title2.TextScaled = true
     title2.Font = Enum.Font.SourceSansBold
