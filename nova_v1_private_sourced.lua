@@ -1382,4 +1382,5 @@ end)
                 game.Players.LocalPlayer.Character.Head.face.Texture = "rbxassetid://6982506164"
             end)
             
+
              local AimingTab = Window:CreateTab("Made By Wuss")
