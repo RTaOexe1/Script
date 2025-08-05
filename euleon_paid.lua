@@ -772,4 +772,5 @@ PingLabel:GetPropertyChangedSignal("Text"):Connect(
             end
         end
     end
+
 )
