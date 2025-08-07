@@ -257,7 +257,7 @@ getgenv().loaded = true
 
         function library:resizify(frame) 
             local Frame = Instance.new("TextButton")
-            Frame.Position = dim2(1, -10, 1, -10)
+            Frame.Position = dim2(0, 10, 0, 15)
             Frame.BorderColor3 = rgb(0, 0, 0)
             Frame.Size = dim2(0, 10, 0, 10)
             Frame.BorderSizePixel = 0
