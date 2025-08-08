@@ -3306,45 +3306,7 @@ if getgenv().loaded then
     notifications:create_notification({name = "loaded cheat true"})
 end
 
--- 🟦 [เพิ่มปุ่ม Toggle UI]
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
-
--- ตรวจสอบหรือสร้าง ScreenGui
-local screenGui = playerGui:FindFirstChild("HyperShotUI") or Instance.new("ScreenGui", playerGui)
-screenGui.Name = "HyperShotUI"
-screenGui.ResetOnSpawn = false
-
--- อ้างอิง MainFrame (เปลี่ยนชื่อหากจำเป็น)
-local mainFrame = screenGui:FindFirstChild("MainFrame") or screenGui:FindFirstChildOfClass("Frame")
-if mainFrame == nil then
-    mainFrame = Instance.new("Frame")
-    mainFrame.Name = "MainFrame"
-    mainFrame.Size = UDim2.new(0, 400, 0, 300)
-    mainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
-    mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    mainFrame.Parent = screenGui
-end
-
--- ปุ่ม Toggle
-local toggleButton = Instance.new("TextButton")
-toggleButton.Size = UDim2.new(0, 100, 0, 35)
-toggleButton.Position = UDim2.new(0, 10, 0, 10)
-toggleButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-toggleButton.TextColor3 = Color3.new(1, 1, 1)
-toggleButton.Text = "🔁 UI"
-toggleButton.Parent = screenGui
-
--- ฟังก์ชัน Toggle
-local isVisible = true
-toggleButton.MouseButton1Click:Connect(function()
-	isVisible = not isVisible
-	mainFrame.Visible = isVisible
-	toggleButton.Text = isVisible and "🔁 UI" or "🕶️ Show UI"
-end)
-
--- 🟧 ปุ่ม Toggle UI สำหรับ mainFrame
+-- 🟧 ปุ่ม Toggle UI สำหรับ `window`
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 100, 0, 35)
 toggleButton.Position = UDim2.new(0, 10, 0, 10)
@@ -3357,13 +3319,8 @@ toggleButton.Parent = game:GetService("CoreGui")
 local isVisible = true
 toggleButton.MouseButton1Click:Connect(function()
 	isVisible = not isVisible
-
-	local success, err = pcall(function()
-		local mainFrame = game:GetService("CoreGui"):FindFirstChild("Fluent") or game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("HyperShotUI"):FindFirstChild("mainFrame")
-		if mainFrame then
-			mainFrame.Visible = isVisible
-		end
+	pcall(function()
+		window.Visible = isVisible
 	end)
-
-	toggleButton.Text = isVisible and "🔁 UI" or "🕶️ Show UI"
+	toggleButton.Text = isVisible and "🔁 UI" or "🏞️ Show UI"
 end)
