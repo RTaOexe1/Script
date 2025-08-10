@@ -164,9 +164,9 @@ repeat task.wait() until confirmed
 WindUI.TransparencyValue = 0.3
 
 local Window = WindUI:CreateWindow({
-    Title = "Fish It Premium",
+    Title = "Fish It ",
     Icon = "hop",
-    Author = "by Prince",
+    Author = "By RTaO Dev",
     Folder = "QuietXHub",
     Size = UDim2.fromOffset(600, 400),
     Transparent = true,
@@ -195,7 +195,7 @@ Window:EditOpenButton({
 })
 
 Window:Tag({
-    Title = "STABLE",
+    Title = "RTaO",
     Color = Color3.fromHex("#30ff6a")
 })
 
@@ -264,22 +264,22 @@ DevTab:Paragraph({
     	{
     		Title = "Discord Server",
     		Callback = function()
-    			setclipboard("https://discord.gg/2aMDrb92kf")
+    			setclipboard("https://discord.gg/EH23mXVqce")
     		end
     	},
-      {
-      	Title = "Instagram",
-      	Callback = function()
-      		setclipboard("https://instagram.com/quietxdev")
-        end
-      },
-      {
-      	Title = "Github",
-      	Callback = function()
-      		setclipboard("https://github.com/ohmygod-king")
-        end
-      }
-    }
+	  }
+      --	Title = "Instagram",
+      --	Callback = function()
+      --		setclipboard("https://instagram.com/quietxdev")
+      --  end
+  --   },
+  --    {
+  --    	Title = "Github",
+   --   	Callback = function()
+   --    		setclipboard("https://github.com/ohmygod-king")
+   --      end
+   --   }
+   -- }
 })
 
 DevTab:Paragraph({
