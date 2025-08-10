@@ -146,7 +146,7 @@ WindUI:Popup({
     Icon = "rbxassetid://129260712070622",
     Content = [[
 Thank you for using Premium script!.
-Dont be a Stealer!
+By RTaO Dev!
 ]],
     Buttons = {
         { Title = "Close", Variant = "Secondary", Callback = function() end },
@@ -183,7 +183,7 @@ local Window = WindUI:CreateWindow({
 })
 
 Window:EditOpenButton({
-    Title = "QuietXDev",
+    Title = "RTaO Dev",
     Icon = "hop",
     CornerRadius = UDim.new(0,19),
     StrokeThickness = 2,
