@@ -346,4 +346,5 @@ else
     player:Kick("Auto-Farm complete, ServerHop!")
     task.wait(0.5)
     game:GetService("TeleportService"):Teleport(126509999114328)
+
 end
