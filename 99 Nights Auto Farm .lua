@@ -9,7 +9,7 @@ if getgenv().RunScript == true then return end
 getgenv().RunScript = true
 
 local queueScript = [[
-loadstring(game:HttpGet('https://raw.githubusercontent.com/dyumra/DYHUB-Universal-Game/refs/heads/main/99nightAutoFarmdyhub.lua'))()
+loadstring(game:HttpGet('https://raw.githubusercontent.com/RTaOexe1/Script/refs/heads/main/99%20Nights%20Auto%20Farm%20.lua'))()
 ]]
 
 queue_on_teleport(queueScript)
@@ -348,3 +348,4 @@ else
     game:GetService("TeleportService"):Teleport(126509999114328)
 
 end
+
