@@ -95,7 +95,7 @@ if tonumber(game.PlaceId) == 79546208627805 then
         Frame.Visible = true
         if Frame:FindFirstChild("TextLabel1") then
             local tl1 = Frame.TextLabel1
-            tl1.Text = "Auto-Farm Gem | DYHUB"
+            tl1.Text = "Auto-Farm Gem | RTaO Dev"
             tl1.Visible = true
             tl1.TextColor3 = Color3.new(1, 0, 0) -- แก้จาก 255 เป็น 1
         end
@@ -348,4 +348,5 @@ else
     game:GetService("TeleportService"):Teleport(126509999114328)
 
 end
+
 
