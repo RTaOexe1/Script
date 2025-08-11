@@ -604,9 +604,9 @@ local function executeSmallTreeAndLogs()
     
     -- Provide feedback
     if treesCount > 0 then
-        createNotif("Viper", "Teleported " .. treesCount .. " Small Trees + Auto Logs activated!", 3)
+        createNotif("RTaO", "Teleported " .. treesCount .. " Small Trees + Auto Logs activated!", 3)
     else
-        createNotif("Viper", "No Small Trees found, but Auto Logs activated!", 3)
+        createNotif("RTaO", "No Small Trees found, but Auto Logs activated!", 3)
     end
 end
 
@@ -614,7 +614,7 @@ end
 local GetAllLootsButton = Tabs.Main:AddButton({
     Title = "GetLoots",
     Callback = function()
-        createNotif("Viper", "Collecting all items...", 3)
+        createNotif("RTaO", "Collecting all items...", 3)
         
         -- Ensure we have valid character and HRP
         if not char or not char.Parent or not hrp or not hrp.Parent then
@@ -666,7 +666,7 @@ local GetAllLootsButton = Tabs.Main:AddButton({
             end
         end
         
-        createNotif("Viper", "Collected " .. itemsCollected .. " items!", 3)
+        createNotif("RTaO", "Collected " .. itemsCollected .. " items!", 3)
     end
 })
 
