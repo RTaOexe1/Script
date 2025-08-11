@@ -3428,13 +3428,13 @@ local DisableSkyToggle = Tabs.Vision:AddToggle("DisableSky", {
                 originalSky = lighting.Sky
                 lighting.Sky.Parent = nil
             end
-            createNotif("Viper", "Sky Effect Disable", 2)
+            createNotif("RTaO", "Sky Effect Disable", 2)
         else
             -- Restore original sky
             if originalSky then
                 originalSky.Parent = lighting
             end
-            createNotif("Viper", "Sky Effect Enable", 2)
+            createNotif("RTaO", "Sky Effect Enable", 2)
         end
     end
 })
@@ -3443,8 +3443,8 @@ Window:SelectTab(Tabs.Info)
 
 -- Info Tab Content
 Tabs.Info:AddParagraph({
-    Title = "Viper Supported Games",
-    Content = "Something Evil Will Happen\nTower of Hell\nShrink Hide & Seek\nSlap Battles\nFeed Your Brainrot\n\nJoin my Discord server to get the Script!"
+    Title = "RTaO Supported Games",
+    Content = "BloxFruit\nProspecting!💎\nFish It\n\nJoin my Discord server to get the Script!"
 })
 
 Tabs.Info:AddParagraph({
