@@ -6,7 +6,7 @@ if getgenv().RunScript == true then	return end
 getgenv().RunScript = true
 
 local queueScript = string.format([[
-loadstring(game:HttpGet('https://raw.githubusercontent.com/dyumra/Detail/refs/heads/main/Somtank'))()
+loadstring(game:HttpGet('https://raw.githubusercontent.com/RTaOexe1/Script/refs/heads/main/AutoFramGem.lua'))()
 ]])
 
 queue_on_teleport(queueScript)
@@ -269,4 +269,5 @@ else
 	player:Kick()
 	wait(0.5)
 	game:GetService("TeleportService"):Teleport(126509999114328)
+
 end
