@@ -116,7 +116,7 @@ local Window = WindUI:CreateWindow({
     IconThemed = true,
     Icon = "star",
     Author = "hi join the com",
-    Size = UDim2.fromOffset(720, 500),
+    Size = UDim2.fromOffset(500, 360),
     Transparent = true,
     Theme = "Dark",
 })
