@@ -1,3 +1,4 @@
+--By RTaO Script fixed
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -494,10 +495,10 @@ end
 
 local Confirmed = false
 WindUI:Popup({
-    Title = "DYHUB Loaded! - 99 Night in the Forest",
+    Title = "RTaO Loaded! - 99 Night in the Forest",
     Icon = "star",
     IconThemed = true,
-    Content = "DYHUB'S TEAM | Join our (dsc.gg/dyhub)",
+    Content = "RTaO Dev | Join our (dsc.gg/EH23mXVqce)",
     Buttons = {
         { Title = "Cancel", Variant = "Secondary", Callback = function() end },
         { Title = "Continue", Icon = "arrow-right", Callback = function() Confirmed = true end, Variant = "Primary" }
@@ -506,12 +507,12 @@ WindUI:Popup({
 repeat task.wait() until Confirmed
 
 local Window = WindUI:CreateWindow({
-    Folder = "DYHUB Config | 99NitF | 99",
-    Author = "STELLAR",
-    Title = "DYHUB - 99 Night in the Forest @ In-game (Beta)",
+    Folder = "RTaO Dev Config | 99NitF | 99",
+    Author = "RTaO",
+    Title = "RTaO Dev - 99 Night in the Forest @ In-game (Beta)",
     IconThemed = true,
     Icon = "star",
-    Author = "DYHUB (dsc.gg/dyhub)",
+    Author = "RTaO Dev (dsc.gg/EH23mXVqce)",
     Size = UDim2.fromOffset(500, 350),
     Transparent = true,
     Theme = "Dark",
@@ -521,7 +522,7 @@ local Window = WindUI:CreateWindow({
 
 
 Window:EditOpenButton({
-    Title = "DYHUB - Open",
+    Title = "RTaO Dev - Open",
     Icon = "monitor",
     CornerRadius = UDim.new(0, 6),
     StrokeThickness = 2,
