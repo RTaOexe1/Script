@@ -99,10 +99,10 @@ end
 
 local Confirmed = false
 WindUI:Popup({
-    Title = "BellHub Loaded | 99 Nights in the Forest",
+    Title = "RTaO Dev Loaded | 99 Nights in the Forest",
     Icon = "star",
     IconThemed = true,
-    Content = "BellHub Is FUCKING op | Join our com (tDV9R7CcST)",
+    Content = "RTaO Dev op | Join our com (EH23mXVqce)",
     Buttons = {
         { Title = "Cancel", Variant = "Secondary", Callback = function() end },
         { Title = "Continue", Icon = "arrow-right", Callback = function() Confirmed = true end, Variant = "Primary" }
@@ -111,8 +111,8 @@ WindUI:Popup({
 repeat task.wait() until Confirmed
 
 local Window = WindUI:CreateWindow({
-    Folder = "bellhub config | nigga | V1",
-    Title = "BellHub | V1 | 99 Nights In The Forest | Beta",
+    Folder = "RTaO config | nigga | V1",
+    Title = "RTaO Dev | V1 | 99 Nights In The Forest | Beta",
     IconThemed = true,
     Icon = "star",
     Author = "hi join the com",
@@ -122,7 +122,7 @@ local Window = WindUI:CreateWindow({
 })
 
 Window:EditOpenButton({
-    Title = "BellHub | 99 Nights In The Forest",
+    Title = "RTaO | 99 Nights In The Forest",
     Icon = "monitor",
     CornerRadius = UDim.new(0, 6),
     StrokeThickness = 2,
