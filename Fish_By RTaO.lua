@@ -332,27 +332,31 @@ function StartAutoFish()
     task.spawn(function()
         while autofish do
             pcall(function()
-                local args = {1}
-                local equipRemote = net:WaitForChild("RE/EquipToolFromHotbar")
-                equipRemote:FireServer(unpack(args))
-                task.wait(0.1)
+                -- 1. ใส่เบ็ด
+                local equipRemote = ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RE/EquipToolFromHotbar"]
+                equipRemote:FireServer(1)
+                task.wait(0.3)
 
-                local timestamp = perfectCast and 9999999999 or (tick() + math.random())
-                RodShake:Play()
+                -- 2. ง้างเบ็ด
+                local timestamp = tick()
                 rodRemote:InvokeServer(timestamp)
-                local x, y = -99.238, 99.969
-                if not perfectCast then
-                    x = math.random(-1000, 1000) / 1000
-                    y = math.random(0, 1000) / 1000
-                end
-                RodIdle:Play()
+                RodShake:Play()
+                task.wait(0.5)
+
+                -- 3. เริ่มมินิเกม
+                local x, y = 0, 1
                 miniGameRemote:InvokeServer(x, y)
-                task.wait(1.2)
+                RodIdle:Play()
+
+                -- 4. รอให้เหมือนกำลังตกปลา
+                task.wait(2.5)
+
+                -- 5. จบการตกปลา
                 finishRemote:FireServer()
                 RodReel:Play()
                 RodIdle:Stop()
             end)
-            task.wait(customDelay)
+            task.wait(customDelay or 2)
         end
     end)
 end
