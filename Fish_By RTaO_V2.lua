@@ -1338,7 +1338,7 @@ myConfig:Register("JumpPower", Jp)
 ----- =======[ UTILITY TAB ]
 -------------------------------------------
 
-local weatherActive = {}
+--[[local weatherActive = {}
 local weatherData = {
     ["Storm"] = { duration = 600 },
     ["Cloudy"] = { duration = 600 },
@@ -1401,7 +1401,7 @@ local WeatherDropdown = Utils:Dropdown({
     end
 })
 
-myConfig:Register("WeatherDropdown", WeatherDropdown)
+myConfig:Register("WeatherDropdown", WeatherDropdown) ]]
 
 
 local RodItemsPath = game:GetService("ReplicatedStorage"):WaitForChild("Items")
@@ -1789,7 +1789,7 @@ for _, rod in ipairs(Items:GetChildren()) do
 	end
 end
 
-Utils:Dropdown({
+--[[Utils:Dropdown({
 	Title = "Rod Shop",
 	Desc = "Select Rod to Buy",
 	Values = rodOptions,
@@ -1852,7 +1852,7 @@ for _, npc in pairs(npcFolder:GetChildren()) do
 		end
 	end
 end
-
+]]
 
 Utils:Dropdown({
 	Title = "NPC",
