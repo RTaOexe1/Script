@@ -216,11 +216,12 @@ local DevTab = Window:Tab({
     Icon = "airplay"
 })
 
-local AllMenu = Window:Section({
+--[[local AllMenu = Window:Section({
 	Title = "All Menu Here",
 	Icon = "tally-3",
 	Opened = false,
 })
+]]
 
 local AutoFish = Window:Tab({ 
 	Title = "Auto Fish", 
