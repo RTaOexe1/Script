@@ -252,6 +252,11 @@ local TpTab = Window:Tab({
     Icon = "map-pin"
 })
 
+local BuyRodTab = Window:Tab({  
+    Title = "Shop",  
+    Icon = "shopping-cart"
+})
+
 local SettingsTab = Window:Tab({ 
 	Title = "Settings", 
 	Icon = "cog" 
@@ -2136,12 +2141,6 @@ TpTab:Button({
             end
         end
     end
-})
-
-    -- Buy Rod Tab
-local BuyRodTab = Window:Tab({  
-    Title = "Shop",  
-    Icon = "shopping-cart"
 })
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
