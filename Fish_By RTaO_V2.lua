@@ -1655,7 +1655,7 @@ for _, data in pairs(islandCoords) do
     table.insert(islandNames, data.name)
 end
 
-Utils:Dropdown({
+TpTab:Dropdown({
     Title = "Island Selector",
     Desc = "Select island to teleport",
     Values = islandNames,
@@ -1685,7 +1685,7 @@ Utils:Dropdown({
 
 local eventsList = { "Shark Hunt", "Ghost Shark Hunt", "Worm Hunt" }
 
-Utils:Dropdown({
+TpTab:Dropdown({
     Title = "Teleport Event",
     Values = eventsList,
     Value = "Shark Hunt",
