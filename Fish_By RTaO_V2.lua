@@ -2088,3 +2088,6 @@ TpTab:Button({
         end
     end
 })
+
+-- Select first tab on GUI open
+Window:SelectTab(1)
