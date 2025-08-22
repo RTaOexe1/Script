@@ -247,6 +247,11 @@ local Utils = AllMenu:Tab({
     Icon = "earth"
 })
 
+local TpTab = Window:Tab({  
+    Title = "Teleport To Island",  
+    Icon = "map-pin"
+})
+
 local SettingsTab = Window:Tab({ 
 	Title = "Settings", 
 	Icon = "cog" 
@@ -2016,12 +2021,6 @@ SettingsTab:Button({
         myConfig:Load()
         NotifySuccess("Config Loaded", "Config has beed loaded!")
     end
-})
-
--- Teleport Tab
-local TpTab = Window:Tab({  
-    Title = "Teleport To Island",  
-    Icon = "map-pin"
 })
 
 -- Daftar lokasi teleport
