@@ -1925,6 +1925,32 @@ SettingsTab:Button({
 		settings().Rendering.QualityLevel = "Level01"
 	end
 })
+--Theem
+local themes = {}
+for themeName, _ in pairs(WindUI:GetThemes()) do
+    table.insert(themes, themeName)
+end
+table.sort(themes)
+
+local themeDropdown = SettingsTab:Dropdown({
+    Title = "Select Theme",
+    Values = themes,
+    Value = WindUI:GetCurrentTheme(),
+    Callback = function(theme)
+        WindUI:SetTheme(theme)
+        WindUI:Notify({
+            Title = "Theme Applied",
+            Content = theme,
+            Icon = "palette",
+            Duration = 2
+        })
+        if Window.ConfigManager then
+            local config = Window.ConfigManager:CreateConfig("transparent_autoload")
+            config:Set("Theme", theme)
+            config:Save()
+        end
+    end
+})
 
 SettingsTab:Button({
 	Title = "HDR Shader",
