@@ -2138,5 +2138,354 @@ TpTab:Button({
     end
 })
 
+    -- Buy Rod Tab
+local BuyRodTab = Window:Tab({  
+    Title = "Shop",  
+    Icon = "shopping-cart"
+})
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RFPurchaseFishingRod = ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseFishingRod"]
+local RFPurchaseBait = ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseBait"]
+local RFPurchaseWeatherEvent = ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseWeatherEvent"]
+local RFPurchaseBoat = ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseBoat"]
+
+-- ===== Rod Data =====
+local rods = {
+    ["Luck Rod"] = 79,
+    ["Carbon Rod"] = 76,
+    ["Grass Rod"] = 85,
+    ["Demascus Rod"] = 77,
+    ["Ice Rod"] = 78,
+    ["Lucky Rod"] = 4,
+    ["Midnight Rod"] = 80,
+    ["Steampunk Rod"] = 6,
+    ["Chrome Rod"] = 7,
+    ["Astral Rod"] = 5,
+    ["Ares Rod"] = 126,
+    ["Angler Rod"] = 168
+}
+
+-- Dropdown display names (nama + harga)
+local rodNames = {
+    "Luck Rod ($350)", "Carbon Rod ($900)", "Grass Rod ($1.5k)", "Demascus Rod ($3k)",
+    "Ice Rod ($5k)", "Lucky Rod ($15k)", "Midnight Rod ($50k)", "Steampunk Rod ($215k)",
+    "Chrome Rod ($437k)", "Astral Rod ($1M)", "Ares Rod ($3M)", "Angler Rod ($8M)"
+}
+
+-- Mapping dari display name ke key asli
+local rodKeyMap = {
+    ["Luck Rod ($350)"]="Luck Rod",
+    ["Carbon Rod ($900)"]="Carbon Rod",
+    ["Grass Rod ($1.5k)"]="Grass Rod",
+    ["Demascus Rod ($3k)"]="Demascus Rod",
+    ["Ice Rod ($5k)"]="Ice Rod",
+    ["Lucky Rod ($15k)"]="Lucky Rod",
+    ["Midnight Rod ($50k)"]="Midnight Rod",
+    ["Steampunk Rod ($215k)"]="Steampunk Rod",
+    ["Chrome Rod ($437k)"]="Chrome Rod",
+    ["Astral Rod ($1M)"]="Astral Rod",
+    ["Ares Rod ($3M)"]="Ares Rod",
+    ["Angler Rod ($8M)"]="Angler Rod"
+}
+
+local selectedRod = rodNames[1]
+
+-- ===== Dropdown =====
+BuyRodTab:Dropdown({
+    Title = "Select Rod",
+    Values = rodNames,
+    Value = selectedRod,
+    Callback = function(value)
+        selectedRod = value
+        WindUI:Notify({Title="Rod Selected", Content=value, Duration=3})
+    end
+})
+
+-- ===== Tombol Buy Rod =====
+BuyRodTab:Button({
+    Title="Buy Rod",
+    Callback=function()
+        local key = rodKeyMap[selectedRod] -- ambil key asli
+        if key and rods[key] then
+            local success, err = pcall(function()
+                RFPurchaseFishingRod:InvokeServer(rods[key])
+            end)
+            if success then
+                WindUI:Notify({Title="Rod Purchase", Content="Purchased "..selectedRod, Duration=3})
+            else
+                WindUI:Notify({Title="Rod Purchase Error", Content=tostring(err), Duration=5})
+            end
+        end
+    end
+})
+
+-- ===== Bait Data =====
+local baits = {
+    ["TopWater Bait"] = 10,
+    ["Lucky Bait"] = 2,
+    ["Midnight Bait"] = 3,
+    ["Chroma Bait"] = 6,
+    ["Dark Mater Bait"] = 8,
+    ["Corrupt Bait"] = 15,
+    ["Aether Bait"] = 16
+}
+
+-- Dropdown display names (nama + harga)
+local baitNames = {
+    "TopWater Bait ($100)",
+    "Lucky Bait ($1k)",
+    "Midnight Bait ($3k)",
+    "Chroma Bait ($290k)",
+    "Dark Mater Bait ($630k)",
+    "Corrupt Bait ($1.15M)",
+    "Aether Bait ($3.7M)"
+}
+
+-- Mapping display name -> key asli
+local baitKeyMap = {
+    ["TopWater Bait ($100)"] = "TopWater Bait",
+    ["Lucky Bait ($1k)"] = "Lucky Bait",
+    ["Midnight Bait ($3k)"] = "Midnight Bait",
+    ["Chroma Bait ($290k)"] = "Chroma Bait",
+    ["Dark Mater Bait ($630k)"] = "Dark Mater Bait",
+    ["Corrupt Bait ($1.15M)"] = "Corrupt Bait",
+    ["Aether Bait ($3.7M)"] = "Aether Bait"
+}
+
+local selectedBait = baitNames[1]
+
+-- ===== Paragraph =====
+BuyRodTab:Paragraph({
+    Title = "Buy Bait",
+    Desc = "Select a bait to purchase."
+})
+
+-- ===== Dropdown =====
+BuyRodTab:Dropdown({
+    Title="Select Bait",
+    Values=baitNames,
+    Value=selectedBait,
+    Callback=function(value)
+        selectedBait = value
+        WindUI:Notify({
+            Title="Bait Selected",
+            Content=value,
+            Duration=3
+        })
+    end
+})
+
+-- ===== Tombol Buy Bait =====
+BuyRodTab:Button({
+    Title="Buy Bait",
+    Callback=function()
+        local key = baitKeyMap[selectedBait] -- ambil key asli
+        if key and baits[key] then
+            local amount = baits[key]
+            local success, err = pcall(function()
+                RFPurchaseBait:InvokeServer(amount)
+            end)
+            if success then
+                WindUI:Notify({
+                    Title="Bait Purchase",
+                    Content="Purchased "..selectedBait.." x"..amount,
+                    Duration=3
+                })
+            else
+                WindUI:Notify({
+                    Title="Bait Purchase Error",
+                    Content=tostring(err),
+                    Duration=5
+                })
+            end
+        end
+    end
+})
+
+-- ===== Weather Data =====
+local weathers = {
+    ["Wind"] = 10000,
+    ["Snow"] = 20000,
+    ["Cloudy"] = 15000,
+    ["Storm"] = 35000,
+    ["Radiant"] = 50000,
+    ["Shark Hunt"] = 300000
+}
+
+-- Dropdown display names (nama + harga)
+local weatherNames = {
+    "Wind ($10k)", "Snow ($20k)", "Cloudy ($15k)", "Storm ($35k)",
+    "Radiant ($50k)", "Shark Hunt ($300k)"
+}
+
+-- Mapping display name -> key asli
+local weatherKeyMap = {
+    ["Wind ($10k)"] = "Wind",
+    ["Snow ($20k)"] = "Snow",
+    ["Cloudy ($15k)"] = "Cloudy",
+    ["Storm ($35k)"] = "Storm",
+    ["Radiant ($50k)"] = "Radiant",
+    ["Shark Hunt ($300k)"] = "Shark Hunt"
+}
+
+local selectedWeather = weatherNames[1]
+
+-- ===== Paragraph =====
+BuyRodTab:Paragraph({
+    Title="Buy Weather",
+    Desc="Select a weather to purchase."
+})
+
+-- ===== Dropdown =====
+BuyRodTab:Dropdown({
+    Title="Select Weather",
+    Values=weatherNames,
+    Value=selectedWeather,
+    Callback=function(value)
+        selectedWeather = value
+        local price = weathers[weatherKeyMap[value]]
+        WindUI:Notify({
+            Title="Weather Selected",
+            Content=value,
+            Duration=3
+        })
+    end
+})
+
+-- ===== Tombol Buy Weather =====
+BuyRodTab:Button({
+    Title="Buy Weather",
+    Callback=function()
+        local key = weatherKeyMap[selectedWeather] -- ambil key asli
+        if key and weathers[key] then
+            local price = weathers[key]
+            local success, err = pcall(function()
+                RFPurchaseWeatherEvent:InvokeServer(key)
+            end)
+            if success then
+                WindUI:Notify({
+                    Title="Weather Purchase",
+                    Content="Purchased "..selectedWeather,
+                    Duration=3
+                })
+            else
+                WindUI:Notify({
+                    Title="Weather Purchase Error",
+                    Content=tostring(err),
+                    Duration=5
+                })
+            end
+        end
+    end
+})
+
+-- ===== Paragraph =====
+BuyRodTab:Paragraph({
+    Title="Buy Boat",
+    Desc="Select a Boat to purchase."
+})
+
+-- Urutan boat
+local boatOrder = {
+    "Small Boat",
+    "Kayak",
+    "Jetski",
+    "Highfield",
+    "Speed Boat",
+    "Fishing Boat",
+    "Mini Yacht",
+    "Hyper Boat",
+    "Frozen Boat",
+    "Cruiser Boat"
+}
+
+-- Data boat
+local boats = {
+    ["Small Boat"] = {Id = 1, Price = 300},
+    ["Kayak"] = {Id = 2, Price = 1100},
+    ["Jetski"] = {Id = 3, Price = 7500},
+    ["Highfield"] = {Id = 4, Price = 25000},
+    ["Speed Boat"] = {Id = 5, Price = 70000},
+    ["Fishing Boat"] = {Id = 6, Price = 180000},
+    ["Mini Yacht"] = {Id = 14, Price = 1200000},
+    ["Hyper Boat"] = {Id = 7, Price = 999000},
+    ["Frozen Boat"] = {Id = 11, Price = 0},
+    ["Cruiser Boat"] = {Id = 13, Price = 0}
+}
+
+-- Buat display names sesuai urutan
+local boatNames = {}
+for _, name in ipairs(boatOrder) do
+    local data = boats[name]
+    local priceStr
+    if data.Price >= 1000000 then
+        priceStr = string.format("$%.2fM", data.Price/1000000)
+    elseif data.Price >= 1000 then
+        priceStr = string.format("$%.0fk", data.Price/1000)
+    else
+        priceStr = "$"..data.Price
+    end
+    table.insert(boatNames, name.." ("..priceStr..")")
+end
+
+-- Buat keyMap sesuai urutan
+local boatKeyMap = {}
+for _, displayName in ipairs(boatNames) do
+    local nameOnly = displayName:match("^(.-) %(") -- ambil nama sebelum tanda '('
+    boatKeyMap[displayName] = nameOnly
+end
+
+-- Selected default
+local selectedBoat = boatNames[1]
+
+-- ===== Paragraph =====
+BuyRodTab:Paragraph({
+    Title="Buy Boat",
+    Desc="Select a Boat to purchase."
+})
+
+-- ===== Dropdown =====
+BuyRodTab:Dropdown({
+    Title = "Select Boat",
+    Values = boatNames,
+    Value = selectedBoat,
+    Callback = function(value)
+        selectedBoat = value
+        WindUI:Notify({
+            Title = "Boat Selected",
+            Content = value,
+            Duration = 3
+        })
+    end
+})
+
+-- ===== Tombol Buy Boat =====
+BuyRodTab:Button({
+    Title = "Buy Boat",
+    Callback = function()
+        local key = boatKeyMap[selectedBoat]
+        if key and boats[key] then
+            local success, err = pcall(function()
+                RFPurchaseBoat:InvokeServer(boats[key].Id)
+            end)
+            if success then
+                WindUI:Notify({
+                    Title = "Boat Purchase",
+                    Content = "Purchased "..selectedBoat,
+                    Duration = 3
+                })
+            else
+                WindUI:Notify({
+                    Title = "Boat Purchase Error",
+                    Content = tostring(err),
+                    Duration = 5
+                })
+            end
+        end
+    end
+})
+
+
 -- Select first tab on GUI open
 Window:SelectTab(1)
