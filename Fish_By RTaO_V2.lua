@@ -291,34 +291,8 @@ DevTab:Paragraph({
 	Title = "Feature Guide",
 	Color = "Orange",
 	Desc = [[
-====| Auto Enchant Rod |====
-
-For the Enchant Rod feature, please read this first.
-Before enchanting, you are required to have an Enchant Stone, then put the Enchant Stones in the 5th slot, then wait until the Enchant is successful. The Enchant Rod feature can be used anywhere.
-
-========================•=========================
-
-====| Rod Modifier |====
-
-For the Rod Modifier feature, you can only change each rod once. If you want to change another rod, then the previous rod will be reset.
-
-And for this feature, it says it can only increase 1.5x from your default rod stats.
-
-Please reset Character after using to work perfectly
-
-========================•=========================
-
-====| Auto Farm |====
-
-Before using it, I will teach you how to set up Auto Farm.
-
-Please select the island you want to visit.Please select the island you want to farm.
-
-
-Fish Threshold :
-What is "Fish Threshold"? Detects the number of fish you have caught, if it has reached the number you have determined, it will sell all the fish that have been caught, except above legendary.
-
-========================•=========================
+====| Credit|====
+RTaO Dev Version 1.1.
 ]]
 })
 
@@ -450,6 +424,56 @@ local PerfectCast = AutoFish:Toggle({
     end
 })
 myConfig:Register("Prefect", PerfectCast)
+
+-- Anti Kick
+local antiKickToggle = AutoFish:Toggle({
+    Title = "Anti Kick",
+    Desc = "Every 10 seconds, the player will jump to prevent AFK kick.",
+    Value = false,
+    Callback = function(state)
+        local player = game.Players.LocalPlayer
+
+        if state then
+            -- Anti-AFK
+            _G.AntiKickConnection = player.Idled:Connect(function()
+                local vu = game:GetService("VirtualUser")
+                vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+                vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+            end)
+
+            -- Auto Jump loop menggunakan Humanoid
+            _G.AutoJumpEnabled = true
+            spawn(function()
+                while _G.AutoJumpEnabled do
+                    task.wait(10)
+                    local char = player.Character or player.CharacterAdded:Wait()
+                    local humanoid = char:FindFirstChild("Humanoid")
+                    if humanoid and humanoid.Health > 0 then
+                        humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                    end
+                end
+            end)
+
+            WindUI:Notify({
+                Title = "Anti-Kick + Auto Jump",
+                Content = "Enabled: Anti-Kick active and jumping every 10 seconds",
+                Duration = 3
+            })
+        else
+            if _G.AntiKickConnection then
+                _G.AntiKickConnection:Disconnect()
+                _G.AntiKickConnection = nil
+            end
+            _G.AutoJumpEnabled = false
+
+            WindUI:Notify({
+                Title = "Anti-Kick + Auto Jump",
+                Content = "Disabled",
+                Duration = 3
+            })
+        end
+    end
+})
 
 
 function sellAllFishes()
