@@ -421,6 +421,65 @@ AutoFish:Toggle({
     end
 })
 
+-------------------------------------------
+----- =======[ AUTO FISH V2 TAB ]
+-------------------------------------------
+
+AutoFish:Toggle({
+    Title = "Auto Fish V2",
+    Desc = "Automatically fish and instant fishing",
+    Value = false,
+    Callback = function(state)
+        autoFishEnabled = state
+
+        if state then
+            WindUI:Notify({
+                Title = "Auto Fish",
+                Content = "Enabled",
+                Duration = 3
+            })
+
+            task.spawn(function()
+                while autoFishEnabled do
+                    local success, err = pcall(function()
+                        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+                        local EquipRod = ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RE/EquipToolFromHotbar"]
+                        local StartMinigame = ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/RequestFishingMinigameStarted"]
+                        local ChargeRod = ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/ChargeFishingRod"]
+
+                        -- Auto equip rod (slot 1)
+                        EquipRod:FireServer(1)
+                        task.wait(0.1)
+
+                        -- Start mini game
+                        StartMinigame:InvokeServer(-0.7499996423721313, 1)
+                        task.wait(0.1)
+
+                        -- Charge rod
+                        ChargeRod:InvokeServer(workspace:GetServerTimeNow())
+                        task.wait(0.1)
+
+                        -- Request mini game again to ensure
+                        StartMinigame:InvokeServer(-0.7499996423721313, 1)
+                    end)
+
+                    if not success then
+                        warn("Auto Fish error:", err)
+                    end
+
+                    task.wait(delayTime)
+                end
+            end)
+        else
+            WindUI:Notify({
+                Title = "Auto Fish",
+                Content = "Disabled",
+                Duration = 3
+            })
+        end
+    end
+})
+
 
 local PerfectCast = AutoFish:Toggle({
     Title = "Auto Perfect Cast",
