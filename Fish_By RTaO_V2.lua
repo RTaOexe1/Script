@@ -222,27 +222,27 @@ local AllMenu = Window:Section({
 	Opened = false,
 })
 
-local AutoFish = AllMenu:Tab({ 
+local AutoFish = Window:Tab({ 
 	Title = "Auto Fish", 
 	Icon = "fish"
 })
 
-local AutoFarmTab = AllMenu:Tab({
+local AutoFarmTab = Window:Tab({
 	Title = "Auto Farm",
 	Icon = "leaf"
 })
 
-local Trade = AllMenu:Tab({
+local Trade = Window:Tab({
 	Title = "Auto Trade",
 	Icon = "handshake"
 })
 
-local Player = AllMenu:Tab({
+local Player = Window:Tab({
     Title = "Player",
     Icon = "users-round"
 })
 
-local Utils = AllMenu:Tab({
+local Utils = Window:Tab({
     Title = "Utility",
     Icon = "earth"
 })
