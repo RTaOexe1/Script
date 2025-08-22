@@ -1655,6 +1655,11 @@ for _, data in pairs(islandCoords) do
     table.insert(islandNames, data.name)
 end
 
+TpTab:Paragraph({
+    Title = "Teleport",
+    Desc = "Select a location from dropdown and press Teleport."
+})
+
 TpTab:Dropdown({
     Title = "Island Selector",
     Desc = "Select island to teleport",
@@ -2139,7 +2144,7 @@ SettingsTab:Button({
 })
 
 -- Daftar lokasi teleport
-local teleportLocations = {
+--[[local teleportLocations = {
     {Title = "Kohana Lava", Position = Vector3.new(-593.32, 59.0, 130.82)},
     {Title = "Esotoric Island", Position = Vector3.new(2024.490, 27.397, 1391.620)},
     {Title = "Kohana", Position = Vector3.new(-630.300, 16.035, 597.480)},
@@ -2202,6 +2207,7 @@ TpTab:Button({
         end
     end
 })
+]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RFPurchaseFishingRod = ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseFishingRod"]
