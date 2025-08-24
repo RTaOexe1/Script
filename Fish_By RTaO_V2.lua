@@ -447,17 +447,17 @@ AutoFish:Toggle({
                         local StartMinigame = ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/RequestFishingMinigameStarted"]
                         local ChargeRod = ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/ChargeFishingRod"]
 
-                        -- Auto equip rod (slot 1)
+                        -- Auto equip rod
                         EquipRod:FireServer(1)
-                        task.wait(0.1)
+                        task.wait(0.2)
 
                         -- Start mini game
                         StartMinigame:InvokeServer(-0.7499996423721313, 1)
-                        task.wait(0.1)
+                        task.wait(0.2)
 
                         -- Charge rod
                         ChargeRod:InvokeServer(workspace:GetServerTimeNow())
-                        task.wait(0.1)
+                        task.wait(0.2)
 
                         -- Request mini game again to ensure
                         StartMinigame:InvokeServer(-0.7499996423721313, 1)
@@ -467,7 +467,9 @@ AutoFish:Toggle({
                         warn("Auto Fish error:", err)
                     end
 
-                    task.wait(delayTime)
+                    -- ensure minimal safe delay
+                    local appliedDelay = math.max(delayTime, minSafeDelay)
+                    task.wait(appliedDelay)
                 end
             end)
         else
