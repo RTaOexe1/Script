@@ -490,6 +490,76 @@ local PerfectCast = AutoFish:Toggle({
 })
 myConfig:Register("Prefect", PerfectCast)
 
+
+-- ===== Auto Instant Fish Toggle =====
+local autoInstantFishEnabled = false
+AutoFish:Toggle({
+    Title = "Auto Instant Fish",
+    Desc = "Automatically completes fishing instantly",
+    Value = false,
+    Callback = function(state)
+        autoInstantFishEnabled = state
+
+        if state then
+            WindUI:Notify({
+                Title = "Auto Instant Fish",
+                Content = "Enabled",
+                Duration = 3
+            })
+
+            task.spawn(function()
+                while autoInstantFishEnabled do
+                    local success, err = pcall(function()
+                        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+                        local REFishingCompleted = ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RE/FishingCompleted"]
+                        REFishingCompleted:FireServer()
+                    end)
+                    if not success then
+                        warn("Auto Instant Fish error:", err)
+                    end
+                    task.wait(0.1)
+                end
+            end)
+        else
+            WindUI:Notify({
+                Title = "Auto Instant Fish",
+                Content = "Disabled",
+                Duration = 3
+            })
+        end
+    end
+})
+-- ===== Delay TextBox + Button =====
+AutoFish:Input({
+    Title = "Auto Fish Delay",
+    Placeholder = "Enter delay (0.1–4 seconds)",
+    Callback = function(text)
+        delayInputValue = text
+    end
+})
+
+AutoFish:Button({
+    Title = "Apply Delay",
+    Desc = "Apply the entered delay value",
+    Callback = function()
+        local value = tonumber(delayInputValue)
+        if value and value >= 0.1 and value <= 4 then
+            delayTime = value
+            WindUI:Notify({
+                Title = "Auto Fish Delay",
+                Content = "Delay set to "..string.format("%.1f s", delayTime).." (min safe: "..minSafeDelay.." s)",
+                Duration = 2
+            })
+        else
+            WindUI:Notify({
+                Title = "Auto Fish Delay",
+                Content = "Invalid input! Must be between 0.1–4 seconds",
+                Duration = 2
+            })
+        end
+    end
+})
+
 -- Anti Kick
 local antiKickToggle = AutoFish:Toggle({
     Title = "Anti Kick",
