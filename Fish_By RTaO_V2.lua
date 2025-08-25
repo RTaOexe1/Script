@@ -2,7 +2,8 @@
 ----- =======[ Load WindUI ]
 -------------------------------------------
 
-local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+local Version = "1.6.4"
+local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/download/" .. Version .. "/main.lua"))()
 
 -------------------------------------------
 ----- =======[ GLOBAL FUNCTION ]
@@ -1556,7 +1557,7 @@ myConfig:Register("JumpPower", Jp)
 
 -----------[ ESP PLAYERS ] ----------------
 
-local Players = game:GetService("Players")
+--[[local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
 local CoreGui = game:GetService("CoreGui")
@@ -1566,7 +1567,7 @@ local ESPFolder = Instance.new("Folder")
 ESPFolder.Name = "PlayerESP"
 ESPFolder.Parent = CoreGui
 
-local playerESPEnabled = false
+local playerESPEnabled = false 
 
 -- Fungsi membuat ESP (hanya dipanggil saat toggle ON)
 local function CreatePlayerESP(player)
@@ -1658,7 +1659,7 @@ Player:Toggle({
 Players.PlayerRemoving:Connect(function(player)
     local esp = ESPFolder:FindFirstChild(player.Name)
     if esp then esp:Destroy() end
-end)
+end) 
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -1774,8 +1775,8 @@ Player:Toggle({
 -- Hapus ESP saat pemain keluar
 Players.PlayerRemoving:Connect(function(player)
     local esp = ESPFolder:FindFirstChild(player.Name)
-    if esp then esp:Destroy() end
-end)
+    if esp then esp:Destroy() end ]]
+--end)
 -------------------------------------------
 ----- =======[ UTILITY TAB ]
 -------------------------------------------
