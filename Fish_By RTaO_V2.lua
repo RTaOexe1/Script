@@ -306,6 +306,70 @@ RTaO Dev Version 1.1.
 ----- =======[ AUTO FISH TAB ]
 -------------------------------------------
 
+-- Toggle Fishing Radar
+AutoFish:Toggle({
+    Title = "Fishing Radar",
+    Desc = "Bypass Fishing Radar",
+    Default = false,
+    Callback = function(state)
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        local Lighting = game:GetService("Lighting")
+
+        local Replion = require(ReplicatedStorage.Packages.Replion)
+        local Net = require(ReplicatedStorage.Packages.Net)
+        local SPR = require(ReplicatedStorage.Packages.spr)
+        local Soundbook = require(ReplicatedStorage.Shared.Soundbook)
+        local ClientTime = require(ReplicatedStorage.Controllers.ClientTimeController)
+        local TextNotification = require(ReplicatedStorage.Controllers.TextNotificationController)
+
+        local UpdateFishingRadar = Net:RemoteFunction("UpdateFishingRadar")
+
+        local function SetRadar(enable)
+            local clientData = Replion.Client:GetReplion("Data")
+            if not clientData then return end
+
+            if clientData:Get("RegionsVisible") ~= enable then
+                if UpdateFishingRadar:InvokeServer(enable) then
+                    Soundbook.Sounds.RadarToggle:Play().PlaybackSpeed = 1 + math.random() * 0.3
+
+                    -- Adjust lighting when enabling
+                    if enable then
+                        local ccEffect = Lighting:FindFirstChildWhichIsA("ColorCorrectionEffect")
+                        if ccEffect then
+                            SPR.stop(ccEffect)
+                            local lightingProfile = ClientTime:_getLightingProfile()
+                            local targetSettings = (lightingProfile and lightingProfile.ColorCorrection) or {}
+                            targetSettings.Brightness = targetSettings.Brightness or 0.04
+                            targetSettings.TintColor = targetSettings.TintColor or Color3.fromRGB(255, 255, 255)
+
+                            ccEffect.TintColor = Color3.fromRGB(42, 226, 118)
+                            ccEffect.Brightness = 0.4
+                            SPR.target(ccEffect, 1, 1, targetSettings)
+                        end
+
+                        SPR.stop(Lighting)
+                        Lighting.ExposureCompensation = 1
+                        SPR.target(Lighting, 1, 2, {ExposureCompensation = 0})
+                    end
+
+                    -- Notification
+                    TextNotification:DeliverNotification({
+                        Type = "Text",
+                        Text = "Radar: "..(enable and "Enabled" or "Disabled"),
+                        TextColor = enable and {R = 9, G = 255, B = 0} or {R = 255, G = 0, B = 0}
+                    })
+                end
+            end
+        end
+
+        -- Toggle ON/OFF
+        if state then
+            SetRadar(true)
+        else
+            SetRadar(false)
+        end
+    end
+})
 
 local autofish = false
 local autofish2 = false
@@ -425,6 +489,10 @@ AutoFish:Toggle({
 ----- =======[ AUTO FISH V2 TAB ]
 -------------------------------------------
 
+local delayTime = 3 -- default delay
+local minSafeDelay = 1.5 -- minimum safe delay to prevent Auto Fish errors
+local delayInputValue = tostring(delayTime)
+
 AutoFish:Toggle({
     Title = "Auto Fish V2",
     Desc = "Automatically fish and instant fishing",
@@ -481,7 +549,6 @@ AutoFish:Toggle({
         end
     end
 })
-
 
 local PerfectCast = AutoFish:Toggle({
     Title = "Auto Perfect Cast",
@@ -571,32 +638,55 @@ local antiKickToggle = AutoFish:Toggle({
         local player = game.Players.LocalPlayer
 
         if state then
-            -- Anti-AFK
+            -- Ambil karakter & HumanoidRootPart
+            local char = player.Character or player.CharacterAdded:Wait()
+            local hrp = char:WaitForChild("HumanoidRootPart")
+            local initialPos = hrp.Position
+            local initialCFrame = hrp.CFrame -- simpan orientasi awal
+
+            -- Anti-AFK VirtualUser
             _G.AntiKickConnection = player.Idled:Connect(function()
                 local vu = game:GetService("VirtualUser")
                 vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
                 vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
             end)
 
-            -- Auto Jump loop menggunakan Humanoid
+            -- Auto Jump + pergerakan horizontal random
             _G.AutoJumpEnabled = true
             spawn(function()
                 while _G.AutoJumpEnabled do
-                    task.wait(10)
-                    local char = player.Character or player.CharacterAdded:Wait()
+                    task.wait(5) -- interval 5 detik
+                    local char = player.Character
+                    if not char then break end
                     local humanoid = char:FindFirstChild("Humanoid")
+                    local hrp = char:FindFirstChild("HumanoidRootPart")
                     if humanoid and humanoid.Health > 0 then
                         humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                    end
+                    if hrp then
+                        -- Pergerakan horizontal acak
+                        local offsetX = math.random(-2,2)/10 -- ±0.2 studs
+                        local offsetZ = math.random(-2,2)/10
+                        local newPos = hrp.Position + Vector3.new(offsetX, 0, offsetZ)
+                        hrp.CFrame = CFrame.lookAt(newPos, newPos + initialCFrame.LookVector)
+
+                        task.wait(0.1)
+
+                        -- Kembali ke posisi awal tetap menghadap depan
+                        local currentY = hrp.Position.Y
+                        hrp.CFrame = CFrame.lookAt(initialPos + Vector3.new(0, currentY - initialPos.Y, 0), 
+                                                   initialPos + Vector3.new(0, currentY - initialPos.Y, 0) + initialCFrame.LookVector)
                     end
                 end
             end)
 
             WindUI:Notify({
                 Title = "Anti-Kick + Auto Jump",
-                Content = "Enabled: Anti-Kick active and jumping every 10 seconds",
+                Content = "Enabled: Anti-Kick active with random horizontal movements",
                 Duration = 3
             })
         else
+            -- Matikan loop & disconnect Idled
             if _G.AntiKickConnection then
                 _G.AntiKickConnection:Disconnect()
                 _G.AntiKickConnection = nil
@@ -1465,7 +1555,228 @@ local Jp = Player:Slider({
 
 myConfig:Register("JumpPower", Jp)
 
+-----------[ ESP PLAYERS ] ----------------
 
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
+
+-- Folder untuk ESP
+local ESPFolder = Instance.new("Folder")
+ESPFolder.Name = "PlayerESP"
+ESPFolder.Parent = CoreGui
+
+local playerESPEnabled = false
+
+-- Fungsi membuat ESP (hanya dipanggil saat toggle ON)
+local function CreatePlayerESP(player)
+    if player == LocalPlayer or ESPFolder:FindFirstChild(player.Name) then return end
+    local character = player.Character
+    if not character then return end
+    local head = character:FindFirstChild("Head")
+    if not head then return end
+
+    local container = Instance.new("Folder")
+    container.Name = player.Name
+    container.Parent = ESPFolder
+
+    -- Highlight biru
+    local highlight = Instance.new("Highlight")
+    highlight.Adornee = character
+    highlight.FillTransparency = 1
+    highlight.OutlineColor = Color3.fromRGB(0, 170, 255) -- BIRU
+    highlight.OutlineTransparency = 0
+    highlight.Parent = container
+
+    -- NameTag
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "NameTag"
+    billboard.Adornee = head
+    billboard.Size = UDim2.new(0, 100, 0, 20)
+    billboard.StudsOffset = Vector3.new(0, 2.5, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Parent = container
+
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(1, 0, 1, 0)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Text = player.Name
+    nameLabel.TextColor3 = Color3.new(1, 1, 1) -- Putih
+    nameLabel.TextStrokeTransparency = 0
+    nameLabel.Font = Enum.Font.GothamBold
+    nameLabel.TextScaled = true
+    nameLabel.Parent = billboard
+end
+
+-- Hapus semua ESP
+local function ClearESP()
+    ESPFolder:ClearAllChildren()
+end
+
+-- Mulai ESP loop
+local connection
+local function StartESP()
+    if connection then return end
+    connection = RunService.Heartbeat:Connect(function()
+        if playerESPEnabled then
+            for _, player in pairs(Players:GetPlayers()) do
+                if player ~= LocalPlayer and player.Character then
+                    if not ESPFolder:FindFirstChild(player.Name) then
+                        CreatePlayerESP(player)
+                    end
+                end
+            end
+        else
+            ClearESP()
+            if connection then
+                connection:Disconnect()
+                connection = nil
+            end
+        end
+    end)
+end
+
+local Esp = Player:Toggle({
+	Title = "Player ESP",
+    Desc = "Show ESP for Other Players with Blue Outline and White NameTag",
+    Value = false,
+    Callback = function(state)
+        playerESPEnabled = state
+        if state then
+            StartESP()
+        else
+            ClearESP()
+            if connection then
+                connection:Disconnect()
+                connection = nil
+            end
+        end
+    end
+})
+
+-- Hapus ESP saat pemain keluar
+Players.PlayerRemoving:Connect(function(player)
+    local esp = ESPFolder:FindFirstChild(player.Name)
+    if esp then esp:Destroy() end
+end)
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
+
+-- Folder untuk ESP
+local ESPFolder = Instance.new("Folder")
+ESPFolder.Name = "PlayerESP"
+ESPFolder.Parent = CoreGui
+
+local playerESPEnabled = false
+local hue = 0
+
+-- Fungsi membuat ESP
+local function CreatePlayerESP(player)
+    if player == LocalPlayer or ESPFolder:FindFirstChild(player.Name) then return end
+    local character = player.Character
+    if not character then return end
+    local head = character:FindFirstChild("Head")
+    if not head then return end
+
+    local container = Instance.new("Folder")
+    container.Name = player.Name
+    container.Parent = ESPFolder
+
+    -- Highlight rainbow
+    local highlight = Instance.new("Highlight")
+    highlight.Adornee = character
+    highlight.FillTransparency = 1
+    highlight.OutlineColor = Color3.fromHSV(hue/360, 1, 1)
+    highlight.OutlineTransparency = 0
+    highlight.Parent = container
+
+    -- NameTag
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "NameTag"
+    billboard.Adornee = head
+    billboard.Size = UDim2.new(0, 100, 0, 20)
+    billboard.StudsOffset = Vector3.new(0, 2.5, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Parent = container
+
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(1, 0, 1, 0)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Text = player.Name
+    nameLabel.TextColor3 = Color3.new(1, 1, 1)
+    nameLabel.TextStrokeTransparency = 0
+    nameLabel.Font = Enum.Font.GothamBold
+    nameLabel.TextScaled = true
+    nameLabel.Parent = billboard
+end
+
+-- Update warna ESP (rainbow)
+local function UpdateESPColors()
+    hue = (hue + 5) % 360
+    for _, container in pairs(ESPFolder:GetChildren()) do
+        local highlight = container:FindFirstChildWhichIsA("Highlight")
+        if highlight then
+            highlight.OutlineColor = Color3.fromHSV(hue/360, 1, 1)
+        end
+    end
+end
+
+-- Hapus semua ESP
+local function ClearESP()
+    ESPFolder:ClearAllChildren()
+end
+
+-- Mulai ESP loop
+local connection
+local function StartESP()
+    if connection then return end
+    connection = RunService.Heartbeat:Connect(function()
+        if playerESPEnabled then
+            UpdateESPColors()
+            for _, player in pairs(Players:GetPlayers()) do
+                if player ~= LocalPlayer and player.Character then
+                    if not ESPFolder:FindFirstChild(player.Name) then
+                        CreatePlayerESP(player)
+                    end
+                end
+            end
+        else
+            ClearESP()
+            if connection then
+                connection:Disconnect()
+                connection = nil
+            end
+        end
+    end)
+end
+
+local Esp = Player:Toggle({
+	Title = "Player ESP",
+    Desc = "Show ESP for Other Players with Rainbow Outline and White NameTag",
+    Value = false,
+    Callback = function(state)
+        playerESPEnabled = state
+        if state then
+            StartESP()
+        else
+            ClearESP()
+            if connection then
+                connection:Disconnect()
+                connection = nil
+            end
+        end
+    end
+})
+
+-- Hapus ESP saat pemain keluar
+Players.PlayerRemoving:Connect(function(player)
+    local esp = ESPFolder:FindFirstChild(player.Name)
+    if esp then esp:Destroy() end
+end)
 -------------------------------------------
 ----- =======[ UTILITY TAB ]
 -------------------------------------------
@@ -1719,7 +2030,9 @@ local islandCoords = {
 	["09"] = { name = "Winter Fest", position = Vector3.new(1611, 4, 3280) },
 	["10"] = { name = "Isoteric Island", position = Vector3.new(1987, 4, 1400) },
 	["11"] = { name = "Treasure Hall", position = Vector3.new(-3600, -267, -1558) },
-	["12"] = { name = "Lost Shore", position = Vector3.new(-3663, 38, -989 )}
+	["12"] = { name = "Lost Shore", position = Vector3.new(-3663, 38, -989 )},
+	["13"] = { name = "Ice Island", Position = Vector3.new(1766.46, 19.16, 3086.23)},
+	["14"] = { name = "Teleport To Enchant", Position = Vector3.new(3236.120, -1302.855, 1399.491)}
 }
 
 local islandNames = {}
@@ -1792,6 +2105,56 @@ TpTab:Dropdown({
     end
 })
 
+-- Toggle Diving Gear ON/OFF
+TpTab:Toggle({
+    Title = "Diving Gear",
+    Desc = "Using diving gear without buying it",
+    Default = false,
+    Callback = function(state)
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        local Replion = require(ReplicatedStorage.Packages.Replion)
+        local Net = require(ReplicatedStorage.Packages.Net)
+        local ItemUtility = require(ReplicatedStorage.Shared.ItemUtility)
+        local Soundbook = require(ReplicatedStorage.Shared.Soundbook)
+        local NotificationController = require(ReplicatedStorage.Controllers.TextNotificationController)
+
+        local DivingGear = ItemUtility:GetItemData("Diving Gear")
+        if not DivingGear then return end
+
+        local ReplionData = Replion.Client:GetReplion("Data")
+
+        if state then
+            -- ON
+            if ReplionData:Get("EquippedOxygenTankId") ~= DivingGear.Data.Id then
+                local EquipFunc = Net:RemoteFunction("EquipOxygenTank")
+                local success = EquipFunc:InvokeServer(DivingGear.Data.Id)
+                if success then
+                    Soundbook.Sounds.DivingToggle:Play().PlaybackSpeed = 1 + math.random() * 0.3
+                    NotificationController:DeliverNotification({
+                        Type = "Text",
+                        Text = "Diving Gear: On",
+                        TextColor = {R = 9, G = 255, B = 0}
+                    })
+                end
+            end
+        else
+            -- OFF
+            if ReplionData:Get("EquippedOxygenTankId") == DivingGear.Data.Id then
+                local UnequipFunc = Net:RemoteFunction("UnequipOxygenTank")
+                local success = UnequipFunc:InvokeServer()
+                if success then
+                    Soundbook.Sounds.DivingToggle:Play().PlaybackSpeed = 1 + math.random() * 0.3
+                    NotificationController:DeliverNotification({
+                        Type = "Text",
+                        Text = "Diving Gear: Off",
+                        TextColor = {R = 255, G = 0, B = 0}
+                    })
+                end
+            end
+        end
+    end
+})
+
 local Boats = {
     { Name = "Small Boat", Id = 1 },
     { Name = "Kayak", Id = 2 },
@@ -1852,6 +2215,36 @@ Utils:Dropdown({
     end
 })
 
+Utils:Toggle({
+Title = "Super Speed Boats",
+    Default = false,
+    Callback = function(state)
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        local BoatsModule = require(ReplicatedStorage.Shared.BoatsHandlingData)
+
+        -- Simpan Speed asli untuk restore
+        if not BoatsModule._OriginalSpeed then
+            BoatsModule._OriginalSpeed = {}
+            for boatName, boatData in pairs(BoatsModule) do
+                BoatsModule._OriginalSpeed[boatName] = boatData.Speed
+            end
+        end
+
+        if state then
+            -- ON: Set semua boat Speed = 1000
+            for _, boatData in pairs(BoatsModule) do
+                boatData.Speed = 1000
+            end
+        else
+            -- OFF: Restore Speed asli
+            for boatName, boatData in pairs(BoatsModule) do
+                if BoatsModule._OriginalSpeed[boatName] then
+                    boatData.Speed = BoatsModule._OriginalSpeed[boatName]
+                end
+            end
+        end
+    end
+})
 
 
 local TweenService = game:GetService("TweenService")
