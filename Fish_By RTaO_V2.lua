@@ -2,7 +2,6 @@
 ----- =======[ Load WindUI ]
 -------------------------------------------
 
-local Version = "1.6.4"
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
 -------------------------------------------
