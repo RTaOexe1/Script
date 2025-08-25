@@ -509,7 +509,7 @@ TeleportTab:CreateButton({
 })
 
 AutoStuffTab:CreateSection("Auto Bond Farm")
-AutoStuffTab:CreateButton({
+AutoStuffTab:Createtoggle({
     Name = "Auto Bond Farm V1",
     Callback = function()
         loadstring([[
@@ -660,7 +660,7 @@ end
     end
 })
 
-AutoStuffTab:CreateButton({
+AutoStuffTab:Createtoggle({
     Name = "Auto Farm Bond v2",
     Callback = function()
         local char = game.Players.LocalPlayer.Character
@@ -1282,4 +1282,5 @@ MiscTab:CreateToggle({
       Text.Visible = val
    end
 })
+
 
