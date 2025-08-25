@@ -1557,7 +1557,7 @@ myConfig:Register("JumpPower", Jp)
 
 -----------[ ESP PLAYERS ] ----------------
 
---[[local Players = game:GetService("Players")
+local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
 local CoreGui = game:GetService("CoreGui")
@@ -1661,7 +1661,7 @@ Players.PlayerRemoving:Connect(function(player)
     if esp then esp:Destroy() end
 end) 
 
-local Players = game:GetService("Players")
+--[[local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
 local CoreGui = game:GetService("CoreGui")
@@ -1776,7 +1776,7 @@ Player:Toggle({
 Players.PlayerRemoving:Connect(function(player)
     local esp = ESPFolder:FindFirstChild(player.Name)
     if esp then esp:Destroy() end ]]
---end)
+--end) 
 -------------------------------------------
 ----- =======[ UTILITY TAB ]
 -------------------------------------------
