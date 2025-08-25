@@ -1637,7 +1637,7 @@ local function StartESP()
     end)
 end
 
-local Esp = Player:Toggle({
+Player:Toggle({
 	Title = "Player ESP",
     Desc = "Show ESP for Other Players with Blue Outline and White NameTag",
     Value = false,
@@ -1754,7 +1754,7 @@ local function StartESP()
     end)
 end
 
-local Esp = Player:Toggle({
+Player:Toggle({
 	Title = "Player ESP",
     Desc = "Show ESP for Other Players with Rainbow Outline and White NameTag",
     Value = false,
@@ -2030,8 +2030,8 @@ local islandCoords = {
 	["09"] = { name = "Winter Fest", position = Vector3.new(1611, 4, 3280) },
 	["10"] = { name = "Isoteric Island", position = Vector3.new(1987, 4, 1400) },
 	["11"] = { name = "Treasure Hall", position = Vector3.new(-3600, -267, -1558) },
-	["12"] = { name = "Lost Shore", position = Vector3.new(-3663, 38, -989 )},
-	["13"] = { name = "Ice Island", Position = Vector3.new(1766.46, 19.16, 3086.23)},
+	["12"] = { name = "Lost Shore", position = Vector3.new(-3663, 38, -989) },
+	["13"] = { name = "Ice Island", Position = Vector3.new(1766.46, 19.16, 3086.23) },
 	["14"] = { name = "Teleport To Enchant", Position = Vector3.new(3236.120, -1302.855, 1399.491)}
 }
 
