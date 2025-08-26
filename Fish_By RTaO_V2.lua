@@ -352,6 +352,7 @@ AutoFish:Toggle({
     end
 })
 
+
 local autofish = false
 local autofish2 = false
 local perfectCast = true
