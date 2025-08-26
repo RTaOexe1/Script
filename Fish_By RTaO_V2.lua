@@ -293,11 +293,11 @@ AutoFish:Toggle({
     Desc = "Bypass Fishing Radar",
     Default = false,
     Callback = function(state)
-        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+       -- local ReplicatedStorage = game:GetService("ReplicatedStorage")
         local Lighting = game:GetService("Lighting")
 
         local Replion = require(ReplicatedStorage.Packages.Replion)
-        local Net = require(ReplicatedStorage.Packages.Net)
+       -- local Net = require(ReplicatedStorage.Packages.Net)
         local SPR = require(ReplicatedStorage.Packages.spr)
         local Soundbook = require(ReplicatedStorage.Shared.Soundbook)
         local ClientTime = require(ReplicatedStorage.Controllers.ClientTimeController)
