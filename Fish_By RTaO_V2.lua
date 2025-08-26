@@ -216,13 +216,6 @@ local DevTab = Window:Tab({
     Icon = "airplay"
 })
 
---[[local AllMenu = Window:Section({
-	Title = "All Menu Here",
-	Icon = "tally-3",
-	Opened = false,
-})
-]]
-
 local AutoFish = Window:Tab({ 
 	Title = "Auto Fish", 
 	Icon = "fish"
@@ -277,20 +270,8 @@ DevTab:Paragraph({
     		Callback = function()
     			setclipboard("https://discord.gg/EH23mXVqce")
     		end
-    	},
-	  }
-      --	Title = "Instagram",
-      --	Callback = function()
-      --		setclipboard("https://instagram.com/quietxdev")
-      --  end
-  --   },
-  --    {
-  --    	Title = "Github",
-   --   	Callback = function()
-   --    		setclipboard("https://github.com/ohmygod-king")
-   --      end
-   --   }
-   -- }
+			}
+		}
 })
 
 DevTab:Paragraph({
@@ -371,7 +352,7 @@ AutoFish:Toggle({
     end
 })
 
-local autofish = false
+--[[local autofish = false
 local autofish2 = false
 local perfectCast = true
 local customDelay = 1.2
@@ -413,7 +394,7 @@ end
 function StopAutoFish()
     autofish = false
 end
-
+]]
 
 
 
@@ -474,7 +455,7 @@ local DelayFish = AutoFish:Input({
 })
 myConfig:Register("DelayAFish", DelayFish)
 
-AutoFish:Toggle({
+--[[AutoFish:Toggle({
     Title = "Auto Fish",
     Callback = function(value)
         if value then
@@ -484,7 +465,7 @@ AutoFish:Toggle({
         end
     end
 })
-
+]]
 -------------------------------------------
 ----- =======[ AUTO FISH V2 TAB ]
 -------------------------------------------
@@ -1661,191 +1642,9 @@ Players.PlayerRemoving:Connect(function(player)
     if esp then esp:Destroy() end
 end) 
 
---[[local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local RunService = game:GetService("RunService")
-local CoreGui = game:GetService("CoreGui")
-
--- Folder untuk ESP
-local ESPFolder = Instance.new("Folder")
-ESPFolder.Name = "PlayerESP"
-ESPFolder.Parent = CoreGui
-
-local playerESPEnabled = false
-local hue = 0
-
--- Fungsi membuat ESP
-local function CreatePlayerESP(player)
-    if player == LocalPlayer or ESPFolder:FindFirstChild(player.Name) then return end
-    local character = player.Character
-    if not character then return end
-    local head = character:FindFirstChild("Head")
-    if not head then return end
-
-    local container = Instance.new("Folder")
-    container.Name = player.Name
-    container.Parent = ESPFolder
-
-    -- Highlight rainbow
-    local highlight = Instance.new("Highlight")
-    highlight.Adornee = character
-    highlight.FillTransparency = 1
-    highlight.OutlineColor = Color3.fromHSV(hue/360, 1, 1)
-    highlight.OutlineTransparency = 0
-    highlight.Parent = container
-
-    -- NameTag
-    local billboard = Instance.new("BillboardGui")
-    billboard.Name = "NameTag"
-    billboard.Adornee = head
-    billboard.Size = UDim2.new(0, 100, 0, 20)
-    billboard.StudsOffset = Vector3.new(0, 2.5, 0)
-    billboard.AlwaysOnTop = true
-    billboard.Parent = container
-
-    local nameLabel = Instance.new("TextLabel")
-    nameLabel.Size = UDim2.new(1, 0, 1, 0)
-    nameLabel.BackgroundTransparency = 1
-    nameLabel.Text = player.Name
-    nameLabel.TextColor3 = Color3.new(1, 1, 1)
-    nameLabel.TextStrokeTransparency = 0
-    nameLabel.Font = Enum.Font.GothamBold
-    nameLabel.TextScaled = true
-    nameLabel.Parent = billboard
-end
-
--- Update warna ESP (rainbow)
-local function UpdateESPColors()
-    hue = (hue + 5) % 360
-    for _, container in pairs(ESPFolder:GetChildren()) do
-        local highlight = container:FindFirstChildWhichIsA("Highlight")
-        if highlight then
-            highlight.OutlineColor = Color3.fromHSV(hue/360, 1, 1)
-        end
-    end
-end
-
--- Hapus semua ESP
-local function ClearESP()
-    ESPFolder:ClearAllChildren()
-end
-
--- Mulai ESP loop
-local connection
-local function StartESP()
-    if connection then return end
-    connection = RunService.Heartbeat:Connect(function()
-        if playerESPEnabled then
-            UpdateESPColors()
-            for _, player in pairs(Players:GetPlayers()) do
-                if player ~= LocalPlayer and player.Character then
-                    if not ESPFolder:FindFirstChild(player.Name) then
-                        CreatePlayerESP(player)
-                    end
-                end
-            end
-        else
-            ClearESP()
-            if connection then
-                connection:Disconnect()
-                connection = nil
-            end
-        end
-    end)
-end
-
-Player:Toggle({
-	Title = "Player ESP",
-    Desc = "Show ESP for Other Players with Rainbow Outline and White NameTag",
-    Value = false,
-    Callback = function(state)
-        playerESPEnabled = state
-        if state then
-            StartESP()
-        else
-            ClearESP()
-            if connection then
-                connection:Disconnect()
-                connection = nil
-            end
-        end
-    end
-})
-
--- Hapus ESP saat pemain keluar
-Players.PlayerRemoving:Connect(function(player)
-    local esp = ESPFolder:FindFirstChild(player.Name)
-    if esp then esp:Destroy() end ]]
---end) 
 -------------------------------------------
 ----- =======[ UTILITY TAB ]
 -------------------------------------------
-
---[[local weatherActive = {}
-local weatherData = {
-    ["Storm"] = { duration = 600 },
-    ["Cloudy"] = { duration = 600 },
-    ["Snow"] = { duration = 600 },
-    ["Wind"] = { duration = 600 }
-}
-
-local function randomDelay(min, max)
-    return math.random(min * 100, max * 100) / 100
-end
-
-local function autoBuyWeather(weatherType)
-    local purchaseRemote = ReplicatedStorage:WaitForChild("Packages")
-        :WaitForChild("_Index")
-        :WaitForChild("sleitnick_net@0.2.0")
-        :WaitForChild("net")
-        :WaitForChild("RF/PurchaseWeatherEvent")
-
-    task.spawn(function()
-        while weatherActive[weatherType] do
-            pcall(function()
-                purchaseRemote:InvokeServer(weatherType)
-                NotifySuccess("Weather Purchased", "Successfully activated " .. weatherType)
-
-                task.wait(weatherData[weatherType].duration)
-
-                local randomWait = randomDelay(1, 5)
-                NotifyInfo("Waiting...", "Delay before next purchase: " .. tostring(randomWait) .. "s")
-                task.wait(randomWait)
-            end)
-        end
-    end)
-end
-
-
-local WeatherDropdown = Utils:Dropdown({
-    Title = "Auto Buy Weather",
-    Values = { "Storm", "Cloudy", "Snow", "Wind" },
-    Value = {},
-    Multi = true,
-    AllowNone = true,
-    Callback = function(selected)
-    	  if not blockNotif then
-    	  	blockNotif = true
-    	  	return
-    	  end
-        for weatherType, active in pairs(weatherActive) do
-            if active and not table.find(selected, weatherType) then
-                weatherActive[weatherType] = false
-                NotifyWarning("Auto Weather", "Auto buying " .. weatherType .. " has been stopped.")
-            end
-        end
-        for _, weatherType in pairs(selected) do
-            if not weatherActive[weatherType] then
-                weatherActive[weatherType] = true
-                NotifyInfo("Auto Weather", "Auto buying " .. weatherType .. " has started!")
-                autoBuyWeather(weatherType)
-            end
-        end
-    end
-})
-
-myConfig:Register("WeatherDropdown", WeatherDropdown) ]]
-
 
 local RodItemsPath = game:GetService("ReplicatedStorage"):WaitForChild("Items")
 
@@ -2319,71 +2118,6 @@ for _, rod in ipairs(Items:GetChildren()) do
 	end
 end
 
---[[Utils:Dropdown({
-	Title = "Rod Shop",
-	Desc = "Select Rod to Buy",
-	Values = rodOptions,
-	Value = nil,
-	Callback = function(option)
-		local selectedName = option:split(" |")[1]
-		local id = rodData[selectedName]
-
-		SafePurchase(function()
-			net:WaitForChild("RF/PurchaseFishingRod"):InvokeServer(id)
-			NotifySuccess("Rod Purchased", selectedName .. " has been successfully purchased!")
-		end)
-	end,
-})
-
-
-local baitOptions = {}
-local baitData = {}
-
-for _, bait in ipairs(Baits:GetChildren()) do
-	if bait:IsA("ModuleScript") then
-		local success, module = pcall(require, bait)
-		if success and module and module.Data then
-			local id = module.Data.Id
-			local name = module.Data.Name or bait.Name
-			local price = module.Price or module.Data.Price
-
-			if price then
-				table.insert(baitOptions, name .. " | Price: " .. tostring(price))
-				baitData[name] = id
-			end
-		end
-	end
-end
-
-Utils:Dropdown({
-	Title = "Baits Shop",
-	Desc = "Select Baits to Buy",
-	Values = baitOptions,
-	Value = nil,
-	Callback = function(option)
-		local selectedName = option:split(" |")[1]
-		local id = baitData[selectedName]
-
-		SafePurchase(function()
-			net:WaitForChild("RF/PurchaseBait"):InvokeServer(id)
-			NotifySuccess("Bait Purchased", selectedName .. " has been successfully purchased!")
-		end)
-	end,
-})
-
-local npcFolder = game:GetService("ReplicatedStorage"):WaitForChild("NPC")
-
-local npcList = {}
-for _, npc in pairs(npcFolder:GetChildren()) do
-	if npc:IsA("Model") then
-		local hrp = npc:FindFirstChild("HumanoidRootPart") or npc.PrimaryPart
-		if hrp then
-			table.insert(npcList, npc.Name)
-		end
-	end
-end
-]]
-
 Utils:Dropdown({
 	Title = "NPC",
 	Desc = "Select NPC to Teleport",
@@ -2607,72 +2341,6 @@ SettingsTab:Button({
         NotifySuccess("Config Loaded", "Config has beed loaded!")
     end
 })
-
--- Daftar lokasi teleport
---[[local teleportLocations = {
-    {Title = "Kohana Lava", Position = Vector3.new(-593.32, 59.0, 130.82)},
-    {Title = "Esotoric Island", Position = Vector3.new(2024.490, 27.397, 1391.620)},
-    {Title = "Kohana", Position = Vector3.new(-630.300, 16.035, 597.480)},
-    {Title = "Lost Isle", Position = Vector3.new(-3660.070, 5.426, -1053.020)},
-    {Title = "Stingray Shores", Position = Vector3.new(45.280, 28.000, 2987.110)},
-    {Title = "Tropical Grove", Position = Vector3.new(-2092.897, 6.268, 3693.929)},
-    {Title = "Weather Machine", Position = Vector3.new(-1495.250, 6.500, 1889.920)},
-    {Title = "Coral Reefs", Position = Vector3.new(-2949.359, 63.250, 2213.966)},
-    {Title = "Crater Island", Position = Vector3.new(1012.045, 22.676, 5080.221)},
-    {Title = "Teleport To Enchant", Position = Vector3.new(3236.120, -1302.855, 1399.491)}
-}
-
--- Buat list nama untuk dropdown
-local locationNames = {}
-for _, loc in ipairs(teleportLocations) do
-    table.insert(locationNames, loc.Title)
-end
-
--- Default selected location
-local selectedLocation = locationNames[1]
-
--- Paragraph
-TpTab:Paragraph({
-    Title = "Teleport",
-    Desc = "Select a location from dropdown and press Teleport."
-})
-
--- Dropdown Teleport
-local teleportDropdown = TpTab:Dropdown({
-    Title = "Select Location",
-    Values = locationNames,
-    Value = selectedLocation,
-    Callback = function(value)
-        selectedLocation = value
-        WindUI:Notify({Title="Location Selected", Content=value, Duration=3})
-    end
-})
-
--- Tombol Teleport
-TpTab:Button({
-    Title = "Teleport",
-    Icon = "rbxassetid://85151307796718",
-    Callback = function()
-        if selectedLocation then
-            local loc
-            for _, l in ipairs(teleportLocations) do
-                if l.Title == selectedLocation then
-                    loc = l
-                    break
-                end
-            end
-
-            if loc then
-                local player = game.Players.LocalPlayer
-                local character = player.Character or player.CharacterAdded:Wait()
-                local hrp = character:WaitForChild("HumanoidRootPart")
-                hrp.CFrame = CFrame.new(loc.Position)
-                WindUI:Notify({Title="Teleported", Content="Teleported to "..loc.Title, Duration=3})
-            end
-        end
-    end
-})
-]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RFPurchaseFishingRod = ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseFishingRod"]
