@@ -352,7 +352,7 @@ AutoFish:Toggle({
     end
 })
 
---[[local autofish = false
+local autofish = false
 local autofish2 = false
 local perfectCast = true
 local customDelay = 1.2
@@ -362,26 +362,17 @@ function StartAutoFish()
     task.spawn(function()
         while autofish do
             pcall(function()
-                -- 1. ใส่เบ็ด
-                local equipRemote = ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RE/EquipToolFromHotbar"]
+             local equipRemote = ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RE/EquipToolFromHotbar"]
                 equipRemote:FireServer(1)
                 task.wait(0.3)
-
-                -- 2. ง้างเบ็ด
-                local timestamp = tick()
+              local timestamp = tick()
                 rodRemote:InvokeServer(timestamp)
                 RodShake:Play()
                 task.wait(0.5)
-
-                -- 3. เริ่มมินิเกม
-                local x, y = 0, 1
+               local x, y = 0, 1
                 miniGameRemote:InvokeServer(x, y)
                 RodIdle:Play()
-
-                -- 4. รอให้เหมือนกำลังตกปลา
                 task.wait(2.5)
-
-                -- 5. จบการตกปลา
                 finishRemote:FireServer()
                 RodReel:Play()
                 RodIdle:Stop()
@@ -394,7 +385,6 @@ end
 function StopAutoFish()
     autofish = false
 end
-]]
 
 
 
@@ -437,7 +427,7 @@ if not HookedAutoSell then
     end)
 end
 
-local DelayFish = AutoFish:Input({
+--[[local DelayFish = AutoFish:Input({
     Title = "Custom Delay (Auto Fish)",
     Desc = "Enter a custom delay in seconds for Auto Fish",
     Value = nil,
@@ -453,7 +443,8 @@ local DelayFish = AutoFish:Input({
 		end
     end
 })
-myConfig:Register("DelayAFish", DelayFish)
+]]
+--myConfig:Register("DelayAFish", DelayFish)
 
 --[[AutoFish:Toggle({
     Title = "Auto Fish",
