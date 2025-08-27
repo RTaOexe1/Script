@@ -1245,14 +1245,14 @@ Tabs.Auto:Section({ Title = "Auto Farm", Icon = "gem" })
 Tabs.Auto:Section({ Title = "Feature: Auto Exe, Auto Server-Hop", Icon = "info" })
 
 -- ปุ่มในแท็บ More
-Tabs.Auto:Button({
+Tabs.Auto:Toggle({
     Title = "Auto Farm (All Chest)",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/RTaOexe1/Loder/main/AllChest.lua"))()
     end
 })
 
-Tabs.Auto:Button({
+Tabs.Auto:Toggle({
     Title = "Auto Farm (Diamond Chest)",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/RTaOexe1/Loder/main/DiamondChest.lua"))()
