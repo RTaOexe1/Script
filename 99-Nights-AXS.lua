@@ -1241,6 +1241,24 @@ Tabs.Auto:Toggle({
     end
 })
 
+Tabs.Auto:Section({ Title = "Auto Farm", Icon = "gem" })
+Tabs.Auto:Section({ Title = "Feature: Auto Exe, Auto Server-Hop", Icon = "info" })
+
+-- ปุ่มในแท็บ More
+Tabs.Auto:Button({
+    Title = "Auto Farm (All Chest)",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/RTaOexe1/Loder/main/AllChest.lua"))()
+    end
+})
+
+Tabs.Auto:Button({
+    Title = "Auto Farm (Diamond Chest)",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/RTaOexe1/Loder/main/DiamondChest.lua"))()
+    end
+})
+
 coroutine.wrap(function()
     while true do
         if autoCookEnabled then
@@ -2342,7 +2360,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
-Tabs.Misc:Section({ Title = "Show Status", Icon = "settings-2" })
+Tabs.Vision:Section({ Title = "Show Status", Icon = "settings-2" })
 
 -- UI Toggles
 Tabs.Vision:Toggle({
@@ -2367,23 +2385,6 @@ Tabs.Vision:Button({
     Callback = function()
 		print("[RTaO] FPS Boost Applied")
         loadstring(game:HttpGet("https://raw.githubusercontent.com/rtaodev/RTaO-Dev---Universal---Game-/main/RTaO%20Dev.lua"))()
-    end
-})
-Tabs.Auto:Section({ Title = "Auto Farm", Icon = "gem" })
-Tabs.Auto:Section({ Title = "Feature: Auto Exe, Auto Server-Hop", Icon = "info" })
-
--- ปุ่มในแท็บ More
-Tabs.Auto:Button({
-    Title = "Auto Farm (All Chest)",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/RTaOexe1/Loder/main/AllChest.lua"))()
-    end
-})
-
-Tabs.Auto:Button({
-    Title = "Auto Farm (Diamond Chest)",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/RTaOexe1/Loder/main/DiamondChest.lua"))()
     end
 })
 
