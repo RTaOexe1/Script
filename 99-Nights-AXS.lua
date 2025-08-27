@@ -2369,18 +2369,18 @@ Tabs.Vision:Button({
         loadstring(game:HttpGet("https://raw.githubusercontent.com/rtaodev/RTaO-Dev---Universal---Game-/main/RTaO%20Dev.lua"))()
     end
 })
-Tabs.More:Section({ Title = "Auto Farm", Icon = "gem" })
-Tabs.More:Section({ Title = "Feature: Auto Exe, Auto Server-Hop", Icon = "info" })
+Tabs.Auto:Section({ Title = "Auto Farm", Icon = "gem" })
+Tabs.Auto:Section({ Title = "Feature: Auto Exe, Auto Server-Hop", Icon = "info" })
 
 -- ปุ่มในแท็บ More
-Tabs.More:Button({
+Tabs.Auto:Button({
     Title = "Auto Farm (All Chest)",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/RTaOexe1/Loder/main/AllChest.lua"))()
     end
 })
 
-Tabs.More:Button({
+Tabs.Auto:Button({
     Title = "Auto Farm (Diamond Chest)",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/RTaOexe1/Loder/main/DiamondChest.lua"))()
