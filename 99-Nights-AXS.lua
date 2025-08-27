@@ -856,10 +856,10 @@ local function bringItemsByPlayerTP(itemNames, originalPosition)
 end
 
 local Window = WindUI:CreateWindow({
-    Title = "99 Nights in forest | Axiora Hub",
+    Title = "99 Nights in forest | RTaO Dev",
     Icon = "zap", 
-    Author = "AXS Scripts",
-    Folder = "AxsHub",
+    Author = "RTaO Scripts",
+    Folder = "RTaODev",
     Size = UDim2.fromOffset(500, 350),
     Transparent = getgenv().TransparencyEnabled,
     Theme = "Dark",
@@ -939,48 +939,48 @@ local Tabs = {}
 Tabs.Combat = Window:Tab({
     Title = "Combat",
     Icon = "sword",
-    Desc = "Axiora"
+    Desc = "RTaO"
 })
 Tabs.Main = Window:Tab({
     Title = "Main",
     Icon = "align-left",
-    Desc = "Axiora"
+    Desc = "RTaO"
 })
 Tabs.Auto = Window:Tab({
     Title = "Auto",
     Icon = "wrench",
-    Desc = "Axiora"
+    Desc = "RTaO"
 })
 
 Tabs.esp = Window:Tab({
     Title = "Esp",
     Icon = "sparkles",
-    Desc = "Axiora"
+    Desc = "RTaO"
 })
 Tabs.br = Window:Tab({
     Title = "Bring",
     Icon = "package",
-    Desc = "Axiora"
+    Desc = "RTaO"
 })
 Tabs.Tp = Window:Tab({
     Title = "Teleport",
     Icon = "map",
-    Desc = "Axiora"
+    Desc = "RTaO"
 })
 Tabs.Fly = Window:Tab({
     Title = "Player",
     Icon = "user",
-    Desc = "Axiora"
+    Desc = "RTaO"
 })
 Tabs.Vision= Window:Tab({
     Title = "Environment",
     Icon = "eye",
-    Desc = "Axiora"
+    Desc = "RTaO"
 })
 Tabs.Info = Window:Tab({
     Title = "Information",
     Icon = "badge-info",
-    Desc = "Axiora"
+    Desc = "RTaO"
 })
 
 Window:SelectTab(9)
@@ -1086,6 +1086,77 @@ Tabs.Auto:Dropdown({
     AllowNone = true,
     Callback = function(option)
         selectedCampfireItem = option -- Store single selected item
+    end
+})
+
+Tabs.Auto:Section({ Title = "Safe Campfire", Icon = "flame" })
+
+getgenv().Lowhp = false
+getgenv().AutoCampAtNight = false
+
+Tabs.Auto:Toggle({
+    Title = "Auto to Campfire (Low HP)",
+    Default = false,
+    Callback = function(state)
+        getgenv().Lowhp = state
+        if state then
+            task.spawn(function()
+                local campPosition = Vector3.new(0, 5, 0)
+                while getgenv().Lowhp do
+                    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+                    local humanoid = character:FindFirstChildOfClass("Humanoid")
+                    local hrp = character:FindFirstChild("HumanoidRootPart")
+                    if humanoid and hrp then
+                        local healthPercent = humanoid.Health / humanoid.MaxHealth
+                        local distance = (hrp.Position - campPosition).Magnitude
+
+                        if healthPercent <= 0.4 and distance > 33 then
+                            -- ถ้าเลือดต่ำกว่า 40% และอยู่ไกล camp เกิน 33 stud ให้วาร์ปกลับ
+                            hrp.CFrame = CFrame.new(campPosition)
+                            task.wait(3)  -- รอ 3 วิ ก่อนเช็คใหม่
+                        else
+                            -- กรณีอื่นๆ รอเช็คใหม่
+                            task.wait(1)
+                        end
+                    else
+                        task.wait(1)
+                    end
+                end
+            end)
+        end
+    end
+})
+
+Tabs.Auto:Toggle({
+    Title = "Auto to Campfire (At Night - Once per Night)",
+    Default = false,
+    Callback = function(state)
+        getgenv().AutoCampAtNight = state
+        if state then
+            task.spawn(function()
+                local didTeleportTonight = false
+                while getgenv().AutoCampAtNight do
+                    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+                    local hrp = character:FindFirstChild("HumanoidRootPart")
+                    local lighting = game:GetService("Lighting")
+
+                    if hrp and lighting then
+                        local hour = tonumber(string.split(lighting.TimeOfDay, ":")[1])
+                        if hour then
+                            if not didTeleportTonight and hour >= 0 and hour < 5 then
+                                hrp.CFrame = CFrame.new(Vector3.new(0, 5, 0))
+                                didTeleportTonight = true
+                            end
+                            if hour >= 5 then
+                                didTeleportTonight = false
+                            end
+                        end
+                    end
+
+                    task.wait(1)
+                end
+            end)
+        end
     end
 })
 
@@ -1205,6 +1276,26 @@ Tabs.Tp:Button({
     end
 })
 
+Tabs.Tp:Button({
+    Title = "Teleport to Safe Zone",
+    Callback = function()
+        if not workspace:FindFirstChild("SafeZonePart") then
+            local createpart = Instance.new("Part")
+            createpart.Name = "SafeZonePart"
+            createpart.Size = Vector3.new(50, 50, 50)
+            createpart.Position = Vector3.new(0, 350, 0)
+            createpart.Anchored = true
+            createpart.CanCollide = true
+            createpart.Transparency = 0.8
+            createpart.Color = Color3.fromRGB(255, 255, 255)
+            createpart.Parent = workspace
+        end
+        local player = game:GetService("Players").LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+        hrp.CFrame = CFrame.new(0, 360, 0)
+    end
+})
 
 Tabs.Tp:Section({ Title = "Children", Icon = "eye" })
 
@@ -2133,6 +2224,169 @@ Tabs.Vision:Toggle({
     end
 })
 
+local Lighting = game:GetService("Lighting")
+local RunService = game:GetService("RunService")
+
+local oldFogStart = Lighting.FogStart
+local oldFogEnd = Lighting.FogEnd
+local oldFogColor = Lighting.FogColor
+
+local noFogConnection
+
+Tabs.Vision:Toggle({
+    Title = "No-Fog",
+    Default = false,
+    Callback = function(state)
+        if state then
+            -- ปิดหมอก
+            Lighting.FogStart = 0
+            Lighting.FogEnd = 1e10
+            Lighting.FogColor = Color3.fromRGB(255, 255, 255)
+
+            -- ตรวจสอบตลอดว่าไม่มีใครเปลี่ยน
+            noFogConnection = RunService.RenderStepped:Connect(function()
+                if Lighting.FogStart ~= 0 then
+                    Lighting.FogStart = 0
+                end
+                if Lighting.FogEnd ~= 1e10 then
+                    Lighting.FogEnd = 1e10
+                end
+                if Lighting.FogColor ~= Color3.fromRGB(255, 255, 255) then
+                    Lighting.FogColor = Color3.fromRGB(255, 255, 255)
+                end
+            end)
+        else
+            -- ปิด toggle และคืนค่าหมอกเดิม
+            if noFogConnection then
+                noFogConnection:Disconnect()
+                noFogConnection = nil
+            end
+            Lighting.FogStart = oldFogStart
+            Lighting.FogEnd = oldFogEnd
+            Lighting.FogColor = oldFogColor
+        end
+    end
+})
+
+local Lighting = game:GetService("Lighting")
+
+--Status
+
+local RunService = game:GetService("RunService")
+local Stats = game:GetService("Stats")
+local Camera = workspace.CurrentCamera
+
+-- Settings
+local showFPS, showPing = true, true
+local fpsCounter, fpsLastUpdate, fpsValue = 0, tick(), 0
+
+-- Drawing setup
+local function createText(yOffset)
+    local textObj = Drawing.new("Text")
+    textObj.Size = 16
+    textObj.Position = Vector2.new(Camera.ViewportSize.X - 110, yOffset)
+    textObj.Color = Color3.fromRGB(0, 255, 0)
+    textObj.Center = false
+    textObj.Outline = true
+    textObj.Visible = true
+    return textObj
+end
+
+local fpsText = createText(10)
+local msText = createText(30)
+
+-- Adjust position when screen size changes
+Camera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+    fpsText.Position = Vector2.new(Camera.ViewportSize.X - 110, 10)
+    msText.Position = Vector2.new(Camera.ViewportSize.X - 110, 30)
+end)
+
+-- Main update loop
+RunService.RenderStepped:Connect(function()
+    fpsCounter += 1
+
+    if tick() - fpsLastUpdate >= 1 then
+        fpsValue = fpsCounter
+        fpsCounter = 0
+        fpsLastUpdate = tick()
+
+        -- FPS Display
+        if showFPS then
+            fpsText.Text = string.format("FPS: %d", fpsValue)
+            fpsText.Color = fpsValue >= 50 and Color3.fromRGB(0, 255, 0)
+                or fpsValue >= 30 and Color3.fromRGB(255, 165, 0)
+                or Color3.fromRGB(255, 0, 0)
+            fpsText.Visible = true
+        else
+            fpsText.Visible = false
+        end
+
+        -- Ping Display
+        if showPing then
+            local pingStat = Stats.Network.ServerStatsItem["Data Ping"]
+            local ping = pingStat and math.floor(pingStat:GetValue()) or 0
+            local color, label = Color3.fromRGB(0, 255, 0), "Ping: "
+
+            if ping > 120 then
+                color, label = Color3.fromRGB(255, 0, 0), "Ew Wifi Ping: "
+            elseif ping > 60 then
+                color = Color3.fromRGB(255, 165, 0)
+            end
+
+            msText.Text = string.format("%s%d ms", label, ping)
+            msText.Color = color
+            msText.Visible = true
+        else
+            msText.Visible = false
+        end
+    end
+end)
+
+Tabs.Misc:Section({ Title = "Show Status", Icon = "settings-2" })
+
+-- UI Toggles
+Tabs.Vision:Toggle({
+    Title = "Show FPS",
+    Default = true,
+    Callback = function(val)
+        showFPS = val
+        fpsText.Visible = val
+    end
+})
+Tabs.Vision:Toggle({
+    Title = "Show Ping (ms)",
+    Default = true,
+    Callback = function(val)
+        showPing = val
+        msText.Visible = val
+    end
+})
+
+Tabs.Vision:Button({
+    Title = "FPS Boost (By RTaO)",
+    Callback = function()
+		print("[RTaO] FPS Boost Applied")
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/rtaodev/RTaO-Dev---Universal---Game-/main/RTaO%20Dev.lua"))()
+    end
+})
+Tabs.More:Section({ Title = "Auto Farm", Icon = "gem" })
+Tabs.More:Section({ Title = "Feature: Auto Exe, Auto Server-Hop", Icon = "info" })
+
+-- ปุ่มในแท็บ More
+Tabs.More:Button({
+    Title = "Auto Farm (All Chest)",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/RTaOexe1/Loder/main/AllChest.lua"))()
+    end
+})
+
+Tabs.More:Button({
+    Title = "Auto Farm (Diamond Chest)",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/RTaOexe1/Loder/main/DiamondChest.lua"))()
+    end
+})
+
 -- Replace the problematic section with this fixed version:
 
 Info = Tabs["Info"]  -- This correctly references your existing Info tab
@@ -2264,7 +2518,7 @@ LoadDiscordInfo()
 
 Info:Divider()
 Info:Section({ 
-    Title = "Axiora Hub",
+    Title = "RTaO Dev",
     TextXAlignment = "Center",
     TextSize = 17,
 })
@@ -2272,7 +2526,7 @@ Info:Divider()
 
 local Owner = Info:Paragraph({
     Title = "Main Founder",
-    Desc = "Zynoxis",
+    Desc = "RTaO Dev",
     Image = "rbxassetid://77933782593847",
     ImageSize = 30,
     Thumbnail = "",
@@ -2281,8 +2535,8 @@ local Owner = Info:Paragraph({
 })
 
 local CoOwner = Info:Paragraph({
-    Title = "Axiora Hub",
-    Desc = "Developed by Elvis, Zynoxis Scripts, and Viper",
+    Title = "RTaO Dev",
+    Desc = "Developed by RTaO Scripts",
     Image = "rbxassetid://129542787176629",
     ImageSize = 30,
     Thumbnail = "",
