@@ -76,6 +76,15 @@ local function getByteNet()
     return ByteNetReliable
 end
 
+local tweenInfo = TweenInfo.new(
+    0.8, -- Increased duration for slower TP
+    Enum.EasingStyle.Sine,
+    Enum.EasingDirection.InOut,
+    0,
+    false,
+    0
+)
+
 local function fireSkill(skillCode)
     local success, err = pcall(function()
         local args = { buffer.fromstring(skillCode) }
