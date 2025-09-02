@@ -1,4 +1,4 @@
--- [[ v888 ]]
+-- [[ v1 test ]]
 
 local function destroyObjectCache(parent)
     for _, obj in pairs(parent:GetChildren()) do
@@ -56,6 +56,8 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Humanoid = LocalPlayer.Character:WaitForChild("Humanoid")
+local HumanoidRootPart = LocalPlayer.Character:WaitForChild("HumanoidRootPart")
 
 local ByteNetReliable
 
@@ -69,116 +71,102 @@ end)
 
 local function getByteNet()
     if not ByteNetReliable then
-        ByteNetReliable = ReplicatedStorage:FindFirstChild("ByteNetReliable")
+        ByteNetReliable = ReplicatedStorage:WaitForChild("ByteNetReliable", 5)
     end
     return ByteNetReliable
 end
 
-local function getAllNPCs()
-    local entities = workspace:FindFirstChild("Entities"):FindFirstChild("Zombie")
-    if not entities then return {} end
-    return entities:GetChildren()
-end
-
-local function getClosestNPC()
-    local npcs = getAllNPCs()
-    local closest, minDist = nil, math.huge
-    local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-    if not hrp then return nil end
-
-    for _, npc in ipairs(npcs) do
-        local npcRoot = npc:FindFirstChild("HumanoidRootPart")
-        if npcRoot then
-            local dist = (npcRoot.Position - hrp.Position).Magnitude
-            if dist < minDist then
-                minDist = dist
-                closest = npc
-            end
-        end
-    end
-    return closest
-end
-
-local function getAttackInterval()
-    if getgenv().attackSpeed == "Normal" then
-        return 0.01 -- ช้า
-    elseif getgenv().attackSpeed == "Fast" then
-        return 0.001 -- เร็ว
-    elseif getgenv().attackSpeed == "Ultra" then
-        return 0.0005 -- เร็วมาก
-    else
-        return 0.001
-    end
-end
-
-local farmConnection, attackConnection
-
-function startAutoFarm()
-    stopAutoFarm()
-    getgenv().autoFarmActive = true
-
-    farmConnection = RunService.RenderStepped:Connect(function(dt)
-        if not getgenv().autoFarmActive then return end
-        local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-        if not hrp then return end
-
-        local targetNPC = getClosestNPC()
-        if targetNPC and targetNPC:FindFirstChild("HumanoidRootPart") then
-            local npcRoot = targetNPC.HumanoidRootPart
-            local offset
-
-            if getgenv().setPositionMode == "Above" then
-                offset = Vector3.new(0, getgenv().DistanceValue, 0)
-            elseif getgenv().setPositionMode == "Under" then
-                offset = Vector3.new(0, -(getgenv().DistanceValue), 0)
-            elseif getgenv().setPositionMode == "Front" then
-                offset = npcRoot.CFrame.LookVector * getgenv().DistanceValue
-            elseif getgenv().setPositionMode == "Back" then
-                offset = -npcRoot.CFrame.LookVector * getgenv().DistanceValue
-            elseif getgenv().setPositionMode == "Spin" then
-                spinAngle += dt * 5
-                local radius = getgenv().DistanceValue
-                offset = Vector3.new(math.cos(spinAngle) * radius, 0, math.sin(spinAngle) * radius)
-            else
-                offset = Vector3.new(0, getgenv().DistanceValue, 0)
-            end
-
-            hrp.AssemblyLinearVelocity = Vector3.zero
-            hrp.Velocity = Vector3.zero
-            hrp.RotVelocity = Vector3.zero
-            hrp.CFrame = CFrame.new(npcRoot.Position + offset)
+local function autoAttack()
+    local success, err = pcall(function()
+        local args = { buffer.fromstring("\b\004\000") }
+        local remote = getByteNet()
+        if remote then
+            remote:FireServer(unpack(args))
+        else
+            warn("ByteNetReliable not found for auto attack")
         end
     end)
+    if not success then
+        warn("Failed to fire auto attack event: " .. tostring(err))
+    end
+end
+local function getNearbyEntities(range)
+    local entities = {}
+    local EntityFolder = workspace:WaitForChild("Entities", 10)
+    if not EntityFolder then
+        warn("EntityFolder not found in workspace")
+        return entities
+    end
 
-    attackConnection = task.spawn(function()
-        while getgenv().autoFarmActive do
-            local targetNPC = getClosestNPC()
-            local npcRoot = targetNPC and targetNPC:FindFirstChild("HumanoidRootPart")
-            local humanoid = targetNPC and targetNPC:FindFirstChildOfClass("Humanoid")
-
-            if npcRoot and humanoid and humanoid.Health > 0 then
-                local remote = getByteNet()
-                if remote then
-                    for retry = 1, 3 do
-                        for i = 0, 20 do
-                            local args = { buffer.fromstring(string.char(8, i, 0)) }
-                            remote:FireServer(unpack(args))
-                            local f1 = { buffer.fromstring("\001\001"), {} }
-                            remote:FireServer(unpack(f1))
-                        end
-                        task.wait(0.001)
-                    end
+    for _, entity in pairs(EntityFolder:GetDescendants()) do
+        if entity:IsA("Model") and entity:FindFirstChild("HumanoidRootPart") then
+            local entityRoot = entity.HumanoidRootPart
+            local entityHumanoid = entity:FindFirstChild("Humanoid")
+            local isAlive = entityHumanoid and entityHumanoid.Health > 0 or true
+            if isAlive then
+                local distance = (HumanoidRootPart.Position - entityRoot.Position).Magnitude
+                if distance <= range then
+                    table.insert(entities, {
+                        Model = entity,
+                        Root = entityRoot,
+                        Humanoid = entityHumanoid,
+                        Distance = distance
+                    })
                 end
-              end
-            task.wait(getAttackInterval())
+            end
         end
-    end)
-end
+    end
 
-function stopAutoFarm()
-    getgenv().autoFarmActive = false
-    if farmConnection then farmConnection:Disconnect() farmConnection = nil end
-    if attackConnection then attackConnection = nil end
+    table.sort(entities, function(a, b) return a.Distance < b.Distance end)
+    return entities
+end
+local function smoothTeleport(targetCFrame)
+    HumanoidRootPart.CFrame = targetCFrame
+end
+local function attackRoutine()
+    while getgenv().autofarm do
+        local entities = getNearbyEntities(300)
+        if #entities == 0 then
+            task.wait(1)
+            continue
+        end
+
+        local target = entities[1]
+        local targetPos = target.Root.CFrame + Vector3.new(0, 12, 0)
+        smoothTeleport(targetPos)
+        
+        Humanoid.PlatformStand = true
+        local connection
+        connection = RunService.Heartbeat:Connect(function()
+            if not getgenv().autofarm then
+                connection:Disconnect()
+                return
+            end
+            local isAlive = target.Humanoid and target.Humanoid.Health > 0 or target.Model.Parent ~= nil
+            if not isAlive then
+                connection:Disconnect()
+                return
+            end
+            HumanoidRootPart.CFrame = CFrame.new(
+                target.Root.Position + Vector3.new(0, 8, 0),
+                target.Root.Position
+            )
+        end)
+
+         while getgenv().autofarm do
+            local isAlive = target.Humanoid and target.Humanoid.Health > 0 or target.Model.Parent ~= nil
+            if not isAlive then
+                connection:Disconnect()
+                Humanoid.PlatformStand = false
+                break
+            end
+
+            autoAttack()
+            task.wait(0.1)
+        end
+
+        Humanoid.PlatformStand = false
+    end
 end
 
 -- สร้าง GUI
@@ -228,10 +216,13 @@ MainTab:Slider({
 })
 
 MainTab:Toggle({
-    Title = "Auto Farm",
+    Text = "AutoFarm",
     Default = false,
-    Callback = function(value)
-        if value then startAutoFarm() else stopAutoFarm() end
+    Callback = function(Value)
+        getgenv().autofarm = Value
+        if Value then
+            task.spawn(attackRoutine)
+        end
     end
 })
 
@@ -496,7 +487,7 @@ getgenv().Setting = getgenv().Setting or {
 
 getgenv().AutoJoin = false
 
-local AutoCreateRoom = true
+local AutoCreateRoom = false
 
 --==[ GUI Setup ]==--
 JoinTab:Section({ Title = "Feature Party", Icon = "party-popper" })
