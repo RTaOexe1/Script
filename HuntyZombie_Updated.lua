@@ -487,7 +487,7 @@ getgenv().Setting = getgenv().Setting or {
 
 getgenv().AutoJoin = false
 
-local AutoCreateRoom = false
+local AutoCreateRoom = true
 
 --==[ GUI Setup ]==--
 JoinTab:Section({ Title = "Feature Party", Icon = "party-popper" })
