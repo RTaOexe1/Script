@@ -307,7 +307,7 @@ MainTab:Slider({
 })
 
 MainTab:Toggle({
-    Text = "AutoFarm",
+    Title = "AutoFarm",
     Default = false,
     Callback = function(Value)
         getgenv().autofarm = Value
