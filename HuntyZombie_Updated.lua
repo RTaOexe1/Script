@@ -44,29 +44,45 @@ getgenv().autoFarmActive = false
 getgenv().DistanceValue = 5
 getgenv().setPositionMode = "Above"
 
+getgenv().autoFarmActive = false
+getgenv().DistanceValue = 5
+getgenv().setPositionMode = "Above"
+getgenv().attackSpeed = "Fast"
+getgenv().AutoCollect = false
+
 local spinAngle = 0
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ByteNetReliable = ReplicatedStorage:WaitForChild("ByteNetReliable")
 
--- ตัวแปร Auto Farm
-local farmConnection, attackConnection
+local ByteNetReliable
 
--- ฟังก์ชันดึง NPC ทั้งหมด
+task.spawn(function()
+    repeat
+        ByteNetReliable = ReplicatedStorage:WaitForChild("ByteNetReliable", 5)
+        task.wait(1)
+    until ByteNetReliable
+    print("✅ ByteNetReliable Loaded")
+end)
+
+local function getByteNet()
+    if not ByteNetReliable then
+        ByteNetReliable = ReplicatedStorage:FindFirstChild("ByteNetReliable")
+    end
+    return ByteNetReliable
+end
+
 local function getAllNPCs()
     local entities = workspace:FindFirstChild("Entities"):FindFirstChild("Zombie")
     if not entities then return {} end
     return entities:GetChildren()
 end
 
--- ฟังก์ชันหา NPC ใกล้ที่สุด
 local function getClosestNPC()
     local npcs = getAllNPCs()
-    local closest = nil
-    local minDist = math.huge
+    local closest, minDist = nil, math.huge
     local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     if not hrp then return nil end
 
@@ -83,12 +99,24 @@ local function getClosestNPC()
     return closest
 end
 
--- เริ่ม Auto Farm
+local function getAttackInterval()
+    if getgenv().attackSpeed == "Normal" then
+        return 0.01 -- ช้า
+    elseif getgenv().attackSpeed == "Fast" then
+        return 0.001 -- เร็ว
+    elseif getgenv().attackSpeed == "Ultra" then
+        return 0.0005 -- เร็วมาก
+    else
+        return 0.001
+    end
+end
+
+local farmConnection, attackConnection
+
 function startAutoFarm()
     stopAutoFarm()
     getgenv().autoFarmActive = true
 
-    -- วาร์ปตัวละคร
     farmConnection = RunService.RenderStepped:Connect(function(dt)
         if not getgenv().autoFarmActive then return end
         local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
@@ -97,23 +125,24 @@ function startAutoFarm()
         local targetNPC = getClosestNPC()
         if targetNPC and targetNPC:FindFirstChild("HumanoidRootPart") then
             local npcRoot = targetNPC.HumanoidRootPart
-            local offset = Vector3.new(0,getgenv().DistanceValue or 3,0)
+            local offset
 
             if getgenv().setPositionMode == "Above" then
-                offset = Vector3.new(0,getgenv().DistanceValue or 3,0)
+                offset = Vector3.new(0, getgenv().DistanceValue, 0)
             elseif getgenv().setPositionMode == "Under" then
-                offset = Vector3.new(0,-(getgenv().DistanceValue or 3),0)
+                offset = Vector3.new(0, -(getgenv().DistanceValue), 0)
             elseif getgenv().setPositionMode == "Front" then
-                offset = npcRoot.CFrame.LookVector * (getgenv().DistanceValue or 3)
+                offset = npcRoot.CFrame.LookVector * getgenv().DistanceValue
             elseif getgenv().setPositionMode == "Back" then
-                offset = -npcRoot.CFrame.LookVector * (getgenv().DistanceValue or 3)
+                offset = -npcRoot.CFrame.LookVector * getgenv().DistanceValue
             elseif getgenv().setPositionMode == "Spin" then
-                spinAngle += dt * 2
-                local radius = getgenv().DistanceValue or 3
+                spinAngle += dt * 5
+                local radius = getgenv().DistanceValue
                 offset = Vector3.new(math.cos(spinAngle) * radius, 0, math.sin(spinAngle) * radius)
+            else
+                offset = Vector3.new(0, getgenv().DistanceValue, 0)
             end
 
-            -- ล็อกตัวละครให้นิ่ง
             hrp.AssemblyLinearVelocity = Vector3.zero
             hrp.Velocity = Vector3.zero
             hrp.RotVelocity = Vector3.zero
@@ -121,32 +150,36 @@ function startAutoFarm()
         end
     end)
 
-    -- ยิงคำสั่งโจมตีใส่ target ที่ใกล้ที่สุด
     attackConnection = task.spawn(function()
-        local interval = 1 / 500 -- 0.005 วินาที
         while getgenv().autoFarmActive do
             local targetNPC = getClosestNPC()
             local npcRoot = targetNPC and targetNPC:FindFirstChild("HumanoidRootPart")
-            if npcRoot then
-                for i = 0, 10 do
-                    local args = { buffer.fromstring(string.char(8, i, 0)) }
-                    ByteNetReliable:FireServer(unpack(args))
-                    local f1 = { buffer.fromstring("\001\001"), {} }
-                    ByteNetReliable:FireServer(unpack(f1))
+            local humanoid = targetNPC and targetNPC:FindFirstChildOfClass("Humanoid")
+
+            if npcRoot and humanoid and humanoid.Health > 0 then
+                local remote = getByteNet()
+                if remote then
+                    for retry = 1, 3 do
+                        for i = 0, 20 do
+                            local args = { buffer.fromstring(string.char(8, i, 0)) }
+                            remote:FireServer(unpack(args))
+                            local f1 = { buffer.fromstring("\001\001"), {} }
+                            remote:FireServer(unpack(f1))
+                        end
+                        task.wait(0.001)
+                    end
                 end
-            end
-            task.wait(interval)
+              end
+            task.wait(getAttackInterval())
         end
     end)
 end
 
--- หยุด Auto Farm
 function stopAutoFarm()
     getgenv().autoFarmActive = false
     if farmConnection then farmConnection:Disconnect() farmConnection = nil end
     if attackConnection then attackConnection = nil end
 end
-
 
 -- สร้าง GUI
 local Window = WindUI:CreateWindow({
