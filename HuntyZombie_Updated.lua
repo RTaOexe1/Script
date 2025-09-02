@@ -52,6 +52,11 @@ getgenv().AutoCollect = false
 
 local spinAngle = 0
 
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local Workspace = game:GetService("Workspace")
+local Lighting = game:GetService("Lighting")
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
