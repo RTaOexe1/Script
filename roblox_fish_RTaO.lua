@@ -557,6 +557,482 @@ changestatsTab:Button({
     end
 })
 
+
+local AutoFish = Window:Tab({ 
+	Title = "Auto Fish", 
+	Icon = "fish"
+})
+
+local autofish = false
+local autofish2 = false
+local perfectCast = true
+local customDelay = 1.2
+
+function StartAutoFish()
+    autofish = true
+    task.spawn(function()
+        while autofish do
+            pcall(function()
+             local equipRemote = ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RE/EquipToolFromHotbar"]
+                equipRemote:FireServer(1)
+                task.wait(0.3)
+              local timestamp = tick()
+                rodRemote:InvokeServer(timestamp)
+                RodShake:Play()
+                task.wait(0.5)
+               local x, y = 0, 1
+                miniGameRemote:InvokeServer(x, y)
+                RodIdle:Play()
+                task.wait(2.5)
+                finishRemote:FireServer()
+                RodReel:Play()
+                RodIdle:Stop()
+            end)
+            task.wait(customDelay or 2)
+        end
+    end)
+end
+
+function StopAutoFish()
+    autofish = false
+end
+
+AutoFish:Toggle({
+    Title = "Auto Fish",
+    Callback = function(value)
+        if value then
+            StartAutoFish()
+        else
+            StopAutoFish()
+           end
+        end
+
+
+local PerfectCast = AutoFish:Toggle({
+    Title = "Auto Perfect Cast",
+    Value = true,
+    Callback = function(value)
+        perfectCast = value
+    end
+})
+myConfig:Register("Prefect", PerfectCast)
+
+-------------------------------------------
+----- =======[ AUTO FARM TAB ]
+-------------------------------------------
+
+
+local floatPlatform = nil
+
+local function floatingPlat(enabled)
+	if enabled then
+			local charFolder = workspace:WaitForChild("Characters", 5)
+			local char = charFolder:FindFirstChild(LocalPlayer.Name)
+			if not char then return end
+
+			local hrp = char:FindFirstChild("HumanoidRootPart")
+			if not hrp then return end
+
+			floatPlatform = Instance.new("Part")
+			floatPlatform.Anchored = true
+			floatPlatform.Size = Vector3.new(10, 1, 10)
+			floatPlatform.Transparency = 1
+			floatPlatform.CanCollide = true
+			floatPlatform.Name = "FloatPlatform"
+			floatPlatform.Parent = workspace
+
+			task.spawn(function()
+				while floatPlatform and floatPlatform.Parent do
+					pcall(function()
+						floatPlatform.Position = hrp.Position - Vector3.new(0, 3.5, 0)
+					end)
+					task.wait(0.1)
+				end
+			end)
+
+			NotifySuccess("Float Enabled", "This feature has been successfully activated!")
+		else
+			if floatPlatform then
+				floatPlatform:Destroy()
+				floatPlatform = nil
+			end
+			NotifyWarning("Float Disabled", "Feature disabled")
+		end
+        end
+
+local LocalPlayer = Players.LocalPlayer  
+local workspace = game:GetService("Workspace")  
+  
+local knownEvents = {}
+
+-- Mapping kode → nama event
+local eventCodes = {
+	["1"] = "Ghost Shark Hunt",
+	["2"] = "Shark Hunt",
+	["3"] = "Worm Hunt"
+}
+
+local function teleportTo(position)
+	local char = workspace:FindFirstChild("Characters"):FindFirstChild(LocalPlayer.Name)
+	if char then
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+		if hrp then
+			hrp.CFrame = CFrame.new(position + Vector3.new(0, 10, 0))
+		end
+	end
+end
+
+local function updateKnownEvents()
+	knownEvents = {}
+
+	local props = workspace:FindFirstChild("Props")
+	if props then
+		for _, child in ipairs(props:GetChildren()) do
+			if child:IsA("Model") and child.PrimaryPart then
+				knownEvents[child.Name:lower()] = child
+			end
+		end
+	end
+        end
+        
+local function monitorEvents()
+	local props = workspace:FindFirstChild("Props")
+	if not props then
+		workspace.ChildAdded:Connect(function(child)
+			if child.Name == "Props" then
+				task.wait(0.3)
+				monitorEvents()
+			end
+		end)
+		return
+	end
+
+	props.ChildAdded:Connect(function()
+		task.wait(0.3)
+		updateKnownEvents()
+	end)
+
+	props.ChildRemoved:Connect(function()
+		task.wait(0.3)
+		updateKnownEvents()
+	end)
+
+	updateKnownEvents()
+end
+
+monitorEvents()
+
+local autoTPEvent = false
+local savedCFrame = nil
+local monitoringTP = false
+local alreadyTeleported = false
+local teleportTime = nil -- waktu saat teleport
+
+ local function saveOriginalPosition()
+	local char = workspace:FindFirstChild("Characters"):FindFirstChild(LocalPlayer.Name)
+	if char and char:FindFirstChild("HumanoidRootPart") then
+		savedCFrame = char.HumanoidRootPart.CFrame
+	end
+end
+
+local function returnToOriginalPosition()
+	if savedCFrame then
+		local char = workspace:FindFirstChild("Characters"):FindFirstChild(LocalPlayer.Name)
+		if char and char:FindFirstChild("HumanoidRootPart") then
+			char.HumanoidRootPart.CFrame = savedCFrame
+		end
+	end
+end
+
+local function monitorAutoTP()
+	if monitoringTP then return end
+	monitoringTP = true
+
+	while true do
+		if autoTPEvent then
+			if next(knownEvents) ~= nil then
+				for _, eventModel in pairs(knownEvents) do
+					if not alreadyTeleported then
+						saveOriginalPosition()
+						teleportTo(eventModel:GetPivot().Position)
+						if typeof(floatingPlat) == "function" then
+							floatingPlat(true)
+						end
+						alreadyTeleported = true
+						teleportTime = tick()
+						NotifyError("Event Farm", "Teleported to: " .. eventModel.Name)
+					end
+					break
+				end
+			else
+				-- Event hilang sebelum 15 menit
+				if alreadyTeleported then
+					returnToOriginalPosition()
+					if typeof(floatingPlat) == "function" then
+						floatingPlat(false)
+					end
+					alreadyTeleported = false
+					teleportTime = nil
+					NotifyInfo("Event Ended", "Returned to start position.")
+				end
+			end
+
+			if alreadyTeleported and teleportTime and (tick() - teleportTime >= 900) then
+				returnToOriginalPosition()
+				if typeof(floatingPlat) == "function" then
+					floatingPlat(false)
+				end
+				alreadyTeleported = false
+				teleportTime = nil
+				NotifyInfo("Event Timeout", "Returned after 15 minutes.")
+			end
+		else
+			-- Jika toggle dimatikan, pastikan balik
+			if alreadyTeleported then
+				returnToOriginalPosition()
+				if typeof(floatingPlat) == "function" then
+					floatingPlat(false)
+				end
+				alreadyTeleported = false
+				teleportTime = nil
+			end
+		end
+
+		task.wait(1)
+	end
+end
+
+task.spawn(monitorAutoTP)
+
+local selectedIsland = "01"
+local isAutoFarmRunning = false
+
+
+
+local islandCodes = {
+    ["01"] = "Crater Islands",
+    ["02"] = "Tropical Grove",
+    ["03"] = "Vulcano",
+    ["04"] = "Coral Reefs",
+    ["05"] = "Winter",
+    ["06"] = "Machine",
+    ["07"] = "Treasure Room",
+    ["08"] = "Sisyphus Statue"
+}
+
+local farmLocations = {
+    ["Crater Islands"] = {
+    	CFrame.new(1066.1864, 57.2025681, 5045.5542, -0.682534158, 1.00865822e-08, 0.730853677, -5.8900711e-09, 1, -1.93017531e-08, -0.730853677, -1.74788859e-08, -0.682534158),
+    	CFrame.new(1057.28992, 33.0884132, 5133.79883, 0.833871782, 5.44149223e-08, 0.551958203, -6.58184218e-09, 1, -8.86416984e-08, -0.551958203, 7.02829084e-08, 0.833871782),
+    	CFrame.new(988.954712, 42.8254471, 5088.71289, -0.849417388, -9.89310394e-08, 0.527721584, -5.96115086e-08, 1, 9.15179328e-08, -0.527721584, 4.62786431e-08, -0.849417388),
+    	CFrame.new(1006.70685, 17.2302666, 5092.14844, -0.989664078, 5.6538525e-09, -0.143405005, 9.14879283e-09, 1, -2.3711717e-08, 0.143405005, -2.47786183e-08, -0.989664078),
+    	CFrame.new(1025.02356, 2.77259707, 5011.47021, -0.974474192, -6.87871804e-08, 0.224499553, -4.47472104e-08, 1, 1.12170284e-07, -0.224499553, 9.92613209e-08, -0.974474192),
+    	CFrame.new(1071.14551, 3.528404, 5038.00293, -0.532300115, 3.38677708e-08, 0.84655571, 6.69992914e-08, 1, 2.12149165e-09, -0.84655571, 5.7847906e-08, -0.532300115),
+    	CFrame.new(1022.55457, 16.6277809, 5066.28223, 0.721996129, 0, -0.691897094, 0, 1, 0, 0.691897094, 0, 0.721996129),
+    },
+    ["Tropical Grove"] = {
+    	CFrame.new(-2165.05469, 2.77070165, 3639.87451, -0.589090407, -3.61497356e-08, -0.808067143, -3.20645626e-08, 1, -2.13606164e-08, 0.808067143, 1.3326984e-08, -0.589090407)
+    },
+    ["Vulcano"] = {
+    	CFrame.new(-701.447937, 48.1446075, 93.1546631, -0.0770962164, 1.34335654e-08, -0.997023642, 9.84464776e-09, 1, 1.27124169e-08, 0.997023642, -8.83526763e-09, -0.0770962164),
+    	CFrame.new(-654.994934, 57.2567711, 75.098526, -0.540957272, 2.58946509e-09, -0.841050088, -7.58775585e-08, 1, 5.18827363e-08, 0.841050088, 9.1883166e-08, -0.540957272),
+    },
+    ["Coral Reefs"] = {
+    	CFrame.new(-3118.39624, 2.42531538, 2135.26392, 0.92336154, -1.0069185e-07, -0.383931547, 8.0607947e-08, 1, -6.84016968e-08, 0.383931547, 3.22115596e-08, 0.92336154),
+    },
+    ["Winter"] = {
+    	CFrame.new(2036.15308, 6.54998732, 3381.88916, 0.943401575, 4.71338666e-08, -0.331652641, -3.28136842e-08, 1, 4.87781051e-08, 0.331652641, -3.51345975e-08, 0.943401575),
+    },
+    ["Machine"] = {
+    	CFrame.new(-1459.3772, 14.7103214, 1831.5188, 0.777951121, 2.52131862e-08, -0.628324807, -5.24126378e-08, 1, -2.47663063e-08, 0.628324807, 5.21991339e-08, 0.777951121)
+    },
+    ["Treasure Room"] = {
+    	CFrame.new(-3625.0708, -279.074219, -1594.57605, 0.918176472, -3.97606392e-09, -0.396171629, -1.12946204e-08, 1, -3.62128851e-08, 0.396171629, 3.77244298e-08, 0.918176472),
+    	CFrame.new(-3600.72632, -276.06427, -1640.79663, -0.696130812, -6.0491181e-09, 0.717914939, -1.09490363e-08, 1, -2.19084972e-09, -0.717914939, -9.38559541e-09, -0.696130812),
+    	CFrame.new(-3548.52222, -269.309845, -1659.26685, 0.0472991578, -4.08685423e-08, 0.998880744, -7.68598838e-08, 1, 4.45538149e-08, -0.998880744, -7.88812216e-08, 0.0472991578),
+    	CFrame.new(-3581.84155, -279.09021, -1696.15637, -0.999634147, -0.000535600528, -0.0270430837, -0.000448358158, 0.999994695, -0.00323198596, 0.0270446707, -0.00321867829, -0.99962908),
+    	CFrame.new(-3601.34302, -282.790955, -1629.37036, -0.526346684, 0.00143659476, 0.850268841, -0.000266355521, 0.999998271, -0.00185445137, -0.850269973, -0.00120255165, -0.526345372)
+    },
+    ["Sisyphus Statue"] = {
+    	CFrame.new(-3722.92139, -101.130035, -955.649902, 0.777723014, -1.41385739e-08, 0.628607094, -2.57670365e-08, 1, 5.43713092e-08, -0.628607094, -5.84831632e-08, 0.777723014),
+    	CFrame.new(-3708.47119, -97.2460022, -954.105835, 0.123319283, -4.95575279e-08, -0.992367029, 1.97065848e-08, 1, -4.7489813e-08, 0.992367029, -1.36997551e-08, 0.123319283),
+    	CFrame.new(-3731.65234, -98.469101, -944.594482, -0.694187641, 2.44169023e-08, 0.719794095, -6.91526525e-09, 1, -4.05913241e-08, -0.719794095, -3.31555619e-08, -0.694187641)
+    }
+}
+
+
+local function parseNumberWithDot(str)
+    if typeof(str) ~= "string" or str == "" then return nil end
+    local clean = str:gsub("%.", "")
+    if clean == "" then return nil end
+    return tonumber(clean)
+end
+      
+local obtainedFishUUIDs = {}
+local obtainedLimit = 30
+
+local Remote = game:GetService("ReplicatedStorage").Packages._Index["sleitnick_net@0.2.0"].net["RE/ObtainedNewFishNotification"]
+Remote.OnClientEvent:Connect(function(_, _, data)
+    if data and data.InventoryItem and data.InventoryItem.UUID then
+        table.insert(obtainedFishUUIDs, data.InventoryItem.UUID)
+    end
+end)
+
+local function sellItems()
+    if #obtainedFishUUIDs > 0 then
+        game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("_Index")
+            :WaitForChild("sleitnick_net@0.2.0"):WaitForChild("net"):WaitForChild("RF/SellAllItems"):InvokeServer()
+    end
+
+    obtainedFishUUIDs = {}
+end
+
+local function startAutoFarmLoop()
+    NotifySuccess("Auto Farm Enabled", "Fishing started on island: " .. selectedIsland)
+
+    while isAutoFarmRunning do
+        local islandSpots = farmLocations[selectedIsland]
+        if type(islandSpots) == "table" and #islandSpots > 0 then
+            location = islandSpots[math.random(1, #islandSpots)]
+        else
+            location = islandSpots
+        end
+
+        if not location then
+            NotifyError("Invalid Island", "Selected island name not found.")
+            return
+        end
+
+        local char = workspace:FindFirstChild("Characters"):FindFirstChild(LocalPlayer.Name)
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        if not hrp then
+            NotifyError("Teleport Failed", "HumanoidRootPart not found.")
+            return
+        end
+
+        hrp.CFrame = location
+        task.wait(1.5)
+
+        StartAutoFish()
+
+        repeat
+            if not isAutoFarmRunning then break end
+            task.wait(0.3)
+        until #obtainedFishUUIDs >= obtainedLimit
+
+        if not isAutoFarmRunning then
+            StopAutoFish()
+            NotifyWarning("Auto Farm Stopped", "Auto Farm manually disabled. Auto Fish stopped.")
+            break
+        end
+
+        StopAutoFish()
+        NotifyInfo("Fish Threshold Reached", "Selling all fishes...")
+        task.wait(1.5)
+
+        local npcSellLocation = CFrame.new(-32, 5, 2885)
+        if npcSellLocation then
+            hrp.CFrame = npcSellLocation
+            task.wait(1.25)
+        end
+
+        sellItems()
+        task.wait(1.5)
+    end
+end      
+
+local islandCodes = {
+    ["01"] = "Crater Islands",
+    ["02"] = "Tropical Grove",
+    ["03"] = "Vulcano",
+    ["04"] = "Coral Reefs",
+    ["05"] = "Winter",
+    ["06"] = "Machine",
+    ["07"] = "Treasure Room",
+    ["08"] = "Sisyphus Statue"
+}
+
+local nameList = {}
+local islandNamesToCode = {}
+
+for code, name in pairs(islandCodes) do
+    table.insert(nameList, name)
+    islandNamesToCode[name] = code
+end
+
+table.sort(nameList)
+
+local CodeIsland = AutoFarmTab:Dropdown({
+    Title = "Farm Island",
+    Values = nameList,
+    Value = nameList[1],
+    Callback = function(selectedName)
+        local code = islandNamesToCode[selectedName]
+        local islandName = islandCodes[code]
+        if islandName and farmLocations[islandName] then
+            selectedIsland = islandName
+            NotifySuccess("Island Selected", "Farming location set to " .. islandName)
+        else
+            NotifyError("Invalid Selection", "The island name is not recognized.")
+        end
+    end
+})
+
+myConfig:Register("IslCode", CodeIsland)
+
+local FishThres = AutoFarmTab:Input({
+	Title = "Fish Threshold",
+	Placeholder = "Example: 1500",
+	Value = nil,
+	Callback = function(value)
+		local number = tonumber(value)
+		if number then
+		  obtainedLimit = number
+			NotifySuccess("Threshold Set", "Fish threshold set to " .. number)
+		else
+		  NotifyError("Invalid Input", "Failed to convert input to number.")
+		end
+	end,
+})
+
+
+myConfig:Register("FishThreshold", FishThres)
+
+local AutoFish = AutoFarmTab:Toggle({
+	Title = "Start Auto Farm",
+	Callback = function(state)
+		isAutoFarmRunning = state
+		if state then
+			startAutoFarmLoop()
+		else
+			StopAutoFish()
+		end
+	end
+})
+
+myConfig:Register("AutoFarmStart", AutoFarm)
+
+AutoFishTab:Toggle({
+	Title = "Auto Farm Event",
+	Desc = "!! DO WITH YOUR OWN RISK !!",
+	Value = false,
+	Callback = function(state)
+		autoTPEvent = state
+		if autoTPEvent then
+			monitorAutoTP()
+		else
+			if alreadyTeleported then
+				returnToOriginalPosition()
+				if typeof(floatingPlat) == "function" then
+					floatingPlat(false)
+				end
+				alreadyTeleported = false
+			end
+		end
+	end
+})        
+
+
 -- Teleport Tab
 local TpTab = Window:Tab({  
     Title = "Teleport",  
