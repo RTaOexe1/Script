@@ -290,7 +290,7 @@ Window:SelectTab(1)
 
 -- ================= MainTab =================
 MainTab:Section({ Title = "Feature Farm", Icon = "sword" })
-
+--[[
 MainTab:Dropdown({
     Title = "Set Position",
     Values = { "Spin", "Above", "Back", "Under", "Front" },
@@ -305,6 +305,7 @@ MainTab:Slider({
     Step = 1,
     Callback = function(val) getgenv().DistanceValue = val end
 })
+]]
 
 MainTab:Toggle({
     Title = "AutoFarm",
@@ -316,6 +317,16 @@ MainTab:Toggle({
         end
     end
 })
+
+MainTab:Toggle({
+    Title = "Auto Skill",
+    Default = false,
+    Callback = function(Value)
+        getgenv().autofarm = Value
+        if value then
+            task.spawn(autoSkillLoop)
+    end
+end)
 
 MainTab:Toggle({
     Title = "Auto Collect Items",
