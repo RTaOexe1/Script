@@ -76,6 +76,88 @@ local function getByteNet()
     return ByteNetReliable
 end
 
+local function fireSkill(skillCode)
+    local success, err = pcall(function()
+        local args = { buffer.fromstring(skillCode) }
+        local ByteNetReliable = ReplicatedStorage:WaitForChild("ByteNetReliable", 5)
+        if ByteNetReliable then
+            ByteNetReliable:FireServer(unpack(args))
+        else
+            warn("ByteNetReliable not found for skill: " .. skillCode)
+        end
+    end)
+    if not success then
+        warn("Failed to fire skill event: " .. tostring(err))
+    end
+end
+
+local function autoSkillLoop()
+    while autoSkillEnabled do
+        fireSkill("\b\003\000") -- Z
+        task.wait(0.1)
+        fireSkill("\b\005\000") -- X
+        task.wait(0.1)
+        fireSkill("\b\006\000") -- C
+        task.wait(0.1)
+        fireSkill("\b\007\000") -- G
+        task.wait(0.1)
+        fireSkill("\f") -- E
+        task.wait(0.1)
+    end
+end
+
+-- Smooth teleport function using TweenService
+local function smoothTeleport(targetCFrame)
+    local success, err = pcall(function()
+        Humanoid.PlatformStand = true
+        local tween = TweenService:Create(HumanoidRootPart, tweenInfo, {CFrame = targetCFrame})
+        tween:Play()
+        tween.Completed:Wait()
+        Humanoid.PlatformStand = false
+        lastCFrame = targetCFrame
+    end)
+    if not success then
+        warn("Smooth teleport failed: " .. tostring(err))
+        Humanoid.PlatformStand = false
+    end
+end
+
+-- Auto TP function
+local function autoTP()
+    local doors = workspace.School.Doors:GetChildren()
+    
+    if doors[2] and doors[2]:FindFirstChild("Root") then
+        smoothTeleport(doors[2].Root.CFrame)
+    else
+        warn("ไม่พบ doors[2] หรือ doors[2].Root ใน workspace.School.Doors")
+        return
+    end
+
+    if workspace.School.Doors:FindFirstChild("HallwayDoor") and workspace.School.Doors.HallwayDoor:FindFirstChild("Root") then
+        smoothTeleport(workspace.School.Doors.HallwayDoor.Root.CFrame)
+    else
+        warn("ไม่พบ HallwayDoor หรือ HallwayDoor.Root ใน workspace.School.Doors")
+        return
+    end
+
+    if doors[3] and doors[3]:FindFirstChild("Root") then
+        smoothTeleport(doors[3].Root.CFrame)
+    else
+        warn("ไม่พบ doors[3] หรือ doors[3].Root ใน workspace.School.Doors")
+        return
+    end
+
+    if doors[4] and doors[4]:FindFirstChild("Root") then
+        smoothTeleport(doors[4].Root.CFrame)
+    else
+        warn("ไม่พบ doors[4] หรือ doors[4].Root ใน workspace.School.Doors")
+        return
+    end
+
+    smoothTeleport(originalCFrame)
+end
+
+
 local function autoAttack()
     local success, err = pcall(function()
         local args = { buffer.fromstring("\b\004\000") }
