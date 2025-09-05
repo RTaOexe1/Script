@@ -247,16 +247,16 @@ _G.Settings = {
 		["Selected Zone"] = "Zone 5",
 		["Boat Tween Speed"] = 300,
 		["Sail Boat"] = false,
-		["Auto Farm Shark"] = true,
-		["Auto Farm Piranha"] = true,
-		["Auto Farm Fish Crew Member"] = true,
-		["Auto Farm Ghost Ship"] = true,
-		["Auto Farm Pirate Brigade"] = true,
-		["Auto Farm Pirate Grand Brigade"] = true,
-		["Auto Farm Terrorshark"] = true,
-		["Auto Farm Seabeasts"] = true,
-		["Dodge Seabeasts Attack"] = true,
-		["Dodge Terrorshark Attack"] = true,
+		["Auto Farm Shark"] = false,
+		["Auto Farm Piranha"] = false,
+		["Auto Farm Fish Crew Member"] = false,
+		["Auto Farm Ghost Ship"] = false,
+		["Auto Farm Pirate Brigade"] = false,
+		["Auto Farm Pirate Grand Brigade"] = false,
+		["Auto Farm Terrorshark"] = false,
+		["Auto Farm Seabeasts"] = false,
+		["Dodge Seabeasts Attack"] = false,
+		["Dodge Terrorshark Attack"] = false,
 		Lightning = false,
 		["Increase Boat Speed"] = false,
 		["No Clip Rock"] = false
@@ -360,16 +360,16 @@ _G.Settings = {
 };
 (getgenv()).Load = function()
 	if readfile and writefile and isfile and isfolder then
-		if not isfolder("NoxHub") then
-			makefolder("NoxHub");
+		if not isfolder("RTaO Dev") then
+			makefolder("RTaO Dev");
 		end;
-		if not isfolder("NoxHub/Blox Fruits/") then
-			makefolder("NoxHub/Blox Fruits/");
+		if not isfolder("RTaO Dev/Blox Fruits/") then
+			makefolder("RTaO Dev/Blox Fruits/");
 		end;
-		if not isfile(("NoxHub/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json")) then
-			writefile("NoxHub/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json", (game:GetService("HttpService")):JSONEncode(_G.Settings));
+		if not isfile(("RTaO Dev/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json")) then
+			writefile("RTaO Dev/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json", (game:GetService("HttpService")):JSONEncode(_G.Settings));
 		else
-			local Decode = (game:GetService("HttpService")):JSONDecode(readfile("NoxHub/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json"));
+			local Decode = (game:GetService("HttpService")):JSONDecode(readfile("RTaO Dev/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json"));
 			for i, v in pairs(Decode) do
 				_G.Settings[i] = v;
 			end;
@@ -382,15 +382,15 @@ end;
 (getgenv()).SaveSetting = function()
 	if Update:SaveSettings() then
 		if readfile and writefile and isfile and isfolder then
-			if not isfile(("NoxHub/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json")) then
+			if not isfile(("RTaO Dev/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json")) then
 				(getgenv()).Load();
 			else
-				local Decode = (game:GetService("HttpService")):JSONDecode(readfile("NoxHub/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json"));
+				local Decode = (game:GetService("HttpService")):JSONDecode(readfile("RTaO Dev/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json"));
 				local Array = {};
 				for i, v in pairs(_G.Settings) do
 					Array[i] = v;
 				end;
-				writefile("NoxHub/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json", (game:GetService("HttpService")):JSONEncode(Array));
+				writefile("RTaO Dev/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json", (game:GetService("HttpService")):JSONEncode(Array));
 			end;
 		else
 			return warn("Status : Undetected Executor");
@@ -406,7 +406,7 @@ spawn(function()
 	wait(1);
 	((require(game.ReplicatedStorage.Notification)).new("<Color=Purple>[ Welcome " .. game.Players.LocalPlayer.DisplayName .. " ]<Color=/>")):Display();
 	wait(1);
-	((require(game.ReplicatedStorage.Notification)).new("<Color=Yellow>[ Enjoy for script ]<Color=/>")):Display();
+	((require(game.ReplicatedStorage.Notification)).new("<Color=Yellow>[ Enjoy for script By RTaO ]<Color=/>")):Display();
 end);
 function CheckQuest()
 	MyLevel = (game:GetService("Players")).LocalPlayer.Data.Level.Value;
@@ -12053,3 +12053,4 @@ for _, v in pairs(resultNormal) do
 end;
 
 print("Script By RTaO Loaded!");
+
