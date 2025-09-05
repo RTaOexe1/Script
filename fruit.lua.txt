@@ -1,7 +1,5 @@
---- hackmanhub deober v1.2
--- ob MoonSecV3
+--- RTaO Dev BloxFruit Script Test V1.2
 
---- https://discord.gg/cHub loader")
 --         return
 --     end
 
@@ -38,7 +36,7 @@
 -- end
 -- _G._secondaryData = nil
 -- _G.__userKey = nil
-print("✅ Security verification passed. Loading SYPHERHub...")
+print("✅ Security verification passed. Loading RTaO Dev...")
 if game.PlaceId == 2753915549 then
 	World1 = true;
 elseif game.PlaceId == 4442272183 then
@@ -50,7 +48,7 @@ end;
 -- print("-- [[ Webhook ]] --");
 -- (loadstring(game:HttpGet("https://gitshare.me/backend/api/files/677ec71a-082b-4b8c-a1e8-f590f2ab286a/download")))();
 -- print("--------------------------------------------------------------------------");
-local Update = (loadstring(Game:HttpGet("https://you.whimper.xyz/sources/nox/data/fruitsource.lua")))();
+local Update = (loadstring(Game:HttpGet("https://raw.githubusercontent.com/RTaOexe1/rtao_dev/main/RTaO_UI_1.lua")))();
 if Update:LoadAnimation() then
 	Update:StartLoad();
 end;
@@ -11900,15 +11898,15 @@ task.spawn(function()
 	while task.wait() do
 		pcall(function()
 			if (game:GetService("Lighting")).Sky.MoonTextureId == "http://www.roblox.com/asset/?id=9709149431" then
-				FM:Set("ðŸŒ• Full Moon 100%");
+				FM:Set("🌕 Full Moon 100%");
 			elseif (game:GetService("Lighting")).Sky.MoonTextureId == "http://www.roblox.com/asset/?id=9709149052" then
-				FM:Set("ðŸŒ– Full Moon 75%");
+				FM:Set("🌖 Full Moon 75%");
 			elseif (game:GetService("Lighting")).Sky.MoonTextureId == "http://www.roblox.com/asset/?id=9709143733" then
-				FM:Set("ðŸŒ— Full Moon 50%");
+				FM:Set("🌗 Full Moon 50%");
 			elseif (game:GetService("Lighting")).Sky.MoonTextureId == "http://www.roblox.com/asset/?id=9709150401" then
-				FM:Set("ðŸŒ˜ Full Moon 25%");
+				FM:Set("🌘 Full Moon 25%");
 			elseif (game:GetService("Lighting")).Sky.MoonTextureId == "http://www.roblox.com/asset/?id=9709149680" then
-				FM:Set("ðŸŒ˜ Full Moon 15%");
+				FM:Set("🌘 Full Moon 15%");
 			else
 				FM:Set("ðŸŒ‘ Full Moon 0%");
 			end;
@@ -11919,9 +11917,9 @@ spawn(function()
 	pcall(function()
 		while wait(0.2) do
 			if game.Workspace._WorldOrigin.Locations:FindFirstChild("Kitsune Island") then
-				KitsuneStatus:Set("â›©ï¸ Kitsune Island is Spawning");
+				KitsuneStatus:Set("🦊 Kitsune Island is Spawning");
 			else
-				KitsuneStatus:Set("â›©ï¸ Kitsune Island Not Spawn");
+				KitsuneStatus:Set("🦊 Kitsune Island Not Spawn");
 			end;
 		end;
 	end);
@@ -11930,9 +11928,9 @@ spawn(function()
 	pcall(function()
 		while wait(0.2) do
 			if game.Workspace._WorldOrigin.Locations:FindFirstChild("Frozen Dimension") then
-				FrozenStatus:Set("â„ï¸ Frozen Dimension Spawning");
+				FrozenStatus:Set("🌊 Frozen Dimension Spawning");
 			else
-				FrozenStatus:Set("â„ï¸ Frozen Dimension Not Spawn");
+				FrozenStatus:Set("🌊 Frozen Dimension Not Spawn");
 			end;
 		end;
 	end);
@@ -11942,9 +11940,9 @@ spawn(function()
 		while wait(0.2) do
 			if World2 or World3 then
 				if game.Workspace._WorldOrigin.Locations:FindFirstChild("Mirage Island") then
-					MirageStatus:Set("ðŸï¸ Mirage Island is Spawning");
+					MirageStatus:Set("🏝️ Mirage Island is Spawning");
 				else
-					MirageStatus:Set("ðŸï¸ Mirage Island Not Spawn");
+					MirageStatus:Set("🏝️ Mirage Island Not Spawn");
 				end;
 			end;
 		end;
@@ -11955,9 +11953,9 @@ spawn(function()
 		while wait(0.2) do
 			for i, v in pairs(game.Workspace:GetChildren()) do
 				if string.find(v.Name, "Fruit") then
-					FindFruit:Set("ðŸ Find " .. v.Name);
+					FindFruit:Set("Find " .. v.Name);
 				else
-					FindFruit:Set("ðŸ Nothing");
+					FindFruit:Set("Nothing");
 				end;
 			end;
 		end;
@@ -11968,9 +11966,9 @@ spawn(function()
 		pcall(function()
 			local response = (((game:GetService("ReplicatedStorage")):WaitForChild("Remotes")):WaitForChild("CommF_")):InvokeServer("ColorsDealer", "1");
 			if response then
-				HakiDealer:Set("ðŸŸ¢ Master Of Auras Spawning");
+				HakiDealer:Set("Master Of Auras Spawning");
 			else
-				HakiDealer:Set("ðŸ”´ Master Of Auras Not Spawn");
+				HakiDealer:Set("Master Of Auras Not Spawn");
 			end;
 		end);
 	end;
@@ -12053,4 +12051,5 @@ for _, v in pairs(resultNormal) do
 		ServTab:Label(tostring(NormalFruitInfo));
 	end;
 end;
-print("Script Loaded!");
+
+print("Script By RTaO Loaded!");
