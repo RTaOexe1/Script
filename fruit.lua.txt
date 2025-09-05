@@ -11908,7 +11908,7 @@ task.spawn(function()
 			elseif (game:GetService("Lighting")).Sky.MoonTextureId == "http://www.roblox.com/asset/?id=9709149680" then
 				FM:Set("🌘 Full Moon 15%");
 			else
-				FM:Set("ðŸŒ‘ Full Moon 0%");
+				FM:Set("🌘 Full Moon 0%");
 			end;
 		end);
 	end;
@@ -12053,4 +12053,5 @@ for _, v in pairs(resultNormal) do
 end;
 
 print("Script By RTaO Loaded!");
+
 
